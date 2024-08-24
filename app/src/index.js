@@ -4,18 +4,17 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
+import Home from "./components/root/Home";
 import { AuthProvider } from "./context/AuthContext";
 import './services/firebase';
 
-const Home = () => {
-    return (
-        <div id="container">
-            <h1>Home</h1>
-
-        </div>
-    )
-};
-
+// const Home = () => {
+//     return (
+//         <div id="container">
+//             <h1>Home</h1>
+//         </div>
+//     )
+// };
 const Login = () => { return (<div>Login</div>) };
 const Register = () => { return (<div>Register</div>) };
 const SignOut = () => { return (<div>SignOut</div>) };
