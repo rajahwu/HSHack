@@ -1,32 +1,33 @@
 // import { getAuth } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-
-
+import { AuthProvider } from "./context/AuthContext";
+import './services/firebase';
 
 const Home = () => {
     return (
         <div id="container">
             <h1>Home</h1>
-          
+
         </div>
     )
 };
 
 const Login = () => { return (<div>Login</div>) };
-const Register = () => <div>Register</div>;
-const SignOut = () => <div>SignOut</div>;
-const Dashboard = () => <div>Dashboard</div>;
-const Profile = () => <div>Profile</div>;
-const Settings = () => <div>Settings</div>;
+const Register = () => { return (<div>Register</div>) };
+const SignOut = () => { return (<div>SignOut</div>) };
+const Dashboard = () => { return (<div>Dashboard</div>) };
+const Profile = () => { return (<div>Profile</div>) };
+const Settings = () => { return (<div>Settings</div>) };
 
 const domNode = document.getElementById("root");
 const root = createRoot(domNode);
 
-// const auth = getAuth();
-// const user = auth.currentUser;
+const auth = getAuth();
+const user = auth.currentUser;
 
 const router = createBrowserRouter([
     {
@@ -58,8 +59,8 @@ const router = createBrowserRouter([
 
 root.render(
     <React.StrictMode>
-        {/* <AuthProvider> */}
-        <RouterProvider router={router} />
-        {/* </AuthProvider> */}
+        <AuthProvider>
+            <RouterProvider router={router} />
+        </AuthProvider>
     </React.StrictMode>
 );
