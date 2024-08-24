@@ -1,8 +1,32 @@
+// import { getAuth } from "firebase/auth";
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./App";
+
+
+
+const Home = () => {
+    return (
+        <div id="container">
+            <h1>Home</h1>
+          
+        </div>
+    )
+};
+
+const Login = () => { return (<div>Login</div>) };
+const Register = () => <div>Register</div>;
+const SignOut = () => <div>SignOut</div>;
+const Dashboard = () => <div>Dashboard</div>;
+const Profile = () => <div>Profile</div>;
+const Settings = () => <div>Settings</div>;
+
 const domNode = document.getElementById("root");
 const root = createRoot(domNode);
 
-const auth = getAuth();
-const user = auth.currentUser;
+// const auth = getAuth();
+// const user = auth.currentUser;
 
 const router = createBrowserRouter([
     {
@@ -10,25 +34,21 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             { index: true, element: <Home /> },
-            { path: "register", element: <Register />, action: RegisterAction },
-            { path: "login", element: <Login />, action: LoginAction },
+            { path: "register", element: <Register /> },
+            { path: "login", element: <Login /> },
             {
                 path: ":username", children: [
                     {
                         path: "dashboard",
                         element: <Dashboard />,
-                        loader: async ({ params }) => {
-                            const username = params.username;
-                            return dashboardLoader({ username });
-                        },
+                        // loader: async ({ params }) => {
+                        //     const username = params.username;
+                        //     return dashboardLoader({ username });
+                        // },
                     },
-                    { path: "bookings", element: <Booking />, action: bookingsAction },
-                    { path: "custom-orders", element: <CustomOrder /> },
                     { path: "settings", element: <Settings /> },
                     { path: "profile", element: <Profile /> },
-                    { path: "chat", element: <Chat />, loader: chatLoader, action: sendMessageAction },
-                    { path: "chat/:sessionId", element: <ChatSession />, loader: chatSessionLoader, action: sendMessageAction },
-                    { path: "signout", element: <SignOut />, action: SignOutAction },
+                    { path: "signout", element: <SignOut /> },
                 ]
             },
 
@@ -38,8 +58,8 @@ const router = createBrowserRouter([
 
 root.render(
     <React.StrictMode>
-        <AuthProvider>
-            <RouterProvider router={router} />
-        </AuthProvider>
+        {/* <AuthProvider> */}
+        <RouterProvider router={router} />
+        {/* </AuthProvider> */}
     </React.StrictMode>
 );
