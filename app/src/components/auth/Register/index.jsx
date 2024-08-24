@@ -1,16 +1,17 @@
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-import Container from "@mui/material/Container";
-import CssBaseline from "@mui/material/CssBaseline";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid";
-import Link from "@mui/material/Link";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  FormControlLabel,
+  Grid,
+  Link,
+  TextField,
+  Typography
+} from "@mui/material";
 import * as React from "react";
 import { Form } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../context/AuthContext";
 
 function Copyright(props) {
   return (
@@ -36,7 +37,6 @@ export default function Register() {
   if (user) {
     return (
         <Container component="main" maxWidth="xs">
-          <CssBaseline />
           <Box
             sx={{
               marginTop: 8,
@@ -62,7 +62,6 @@ export default function Register() {
 
   return (
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
         <Box
           sx={{
             marginTop: 8,

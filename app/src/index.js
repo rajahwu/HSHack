@@ -1,34 +1,14 @@
-// import { getAuth } from "firebase/auth";
-import { getAuth } from "firebase/auth";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
-import Login from "./components/auth/Login";
-import Register from "./components/auth/Register";
-import Home from "./components/root/Home";
+import { Login, Register, SignOut } from "./components/auth";
+import { Dashboard, Home, Profile, Settings } from "./components/root";
 import { AuthProvider } from "./context/AuthContext";
 import './services/firebase';
 
-// const Home = () => {
-//     return (
-//         <div id="container">
-//             <h1>Home</h1>
-//         </div>
-//     )
-// };
-// const Login = () => { return (<div>Login</div>) };
-// const Register = () => { return (<div>Register</div>) };
-const SignOut = () => { return (<div>SignOut</div>) };
-const Dashboard = () => { return (<div>Dashboard</div>) };
-const Profile = () => { return (<div>Profile</div>) };
-const Settings = () => { return (<div>Settings</div>) };
-
 const domNode = document.getElementById("root");
 const root = createRoot(domNode);
-
-const auth = getAuth();
-const user = auth.currentUser;
 
 const router = createBrowserRouter([
     {

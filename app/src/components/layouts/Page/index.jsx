@@ -1,12 +1,9 @@
 import React from 'react';
-import Main from '../Main';
-import Sidebar from '../SideBar';
 
-const Page = () => {
+const Page = ({ children }) => {
   return (
     <div>
-      <Sidebar />
-      <Main />
+      { children }
     </div>
   );
 }
