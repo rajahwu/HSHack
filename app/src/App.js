@@ -1,10 +1,11 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import Header from "./components/layouts/Header";
 
 export default function App() {
     return (
         <>
-            <h1>App</h1>
+            <Header />
             <div>
                 <Outlet />
             </div>
