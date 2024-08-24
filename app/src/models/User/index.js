@@ -3,18 +3,26 @@ import { createAvatar } from '@dicebear/core';
 import axios from 'axios'; // Ensure axios is imported
 import { createUserWithEmailAndPassword, deleteUser, updateProfile } from "firebase/auth";
 import {
-    collection,
-    deleteDoc,
-    doc,
-    getDocs,
-    query,
-    setDoc,
-    updateDoc,
-    where,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadString } from "firebase/storage"; // Import Firebase Storage methods
 import { auth, db, storage } from "../../services/firebase"; // Import the storage service
 
+/**
+ * Represents a user
+ * @constructor
+ * @param {string} id - Unique identifier.
+ * @param {string} displayName - User display name.
+ * @param {string} email - User email.
+ * @param {string} photoURL - User photo URL.
+ */
 class User {
   constructor(id, email, displayName, avatar) {
     this.id = id;

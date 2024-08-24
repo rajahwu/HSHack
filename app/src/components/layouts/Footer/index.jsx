@@ -2,6 +2,11 @@
 import { Box, Link, Typography } from '@mui/material';
 import React from 'react';
 
+/**
+  * Footer component displays recourse and contact links
+  *
+  * @returns {JSX.Element} The rendered Footer component
+  */
 export default function Footer() {
   return (
     <Box

@@ -31,6 +31,12 @@ function Copyright(props) {
   );
 }
 
+
+/**
+  * Register component displays user registration form
+  *
+  * @returns {JSX.Element} The rendered Registration component
+  */
 export default function Register() {
   const { user } = useAuth();
 

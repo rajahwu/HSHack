@@ -31,6 +31,11 @@ function Copyright(props) {
   );
 }
 
+/**
+  * SignIn component displays user sign in form
+  *
+  * @returns {JSX.Element} The rendered SignIn component
+  */
 export default function SignIn() {
   const { user } = useAuth();
 

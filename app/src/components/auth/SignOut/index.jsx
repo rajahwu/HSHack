@@ -2,6 +2,11 @@ import { Box, Button, Container, Typography } from "@mui/material";
 import React from "react";
 import { Form } from "react-router-dom";
 
+/**
+  * SignOut component displays user sign out confirmation in form
+  *
+  * @returns {JSX.Element} The rendered SignOut component
+  */
 export default function SignOut() {
   return (
     <Container
