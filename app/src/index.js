@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
 import Home from "./components/root/Home";
 import { AuthProvider } from "./context/AuthContext";
 import './services/firebase';
@@ -17,7 +18,7 @@ import './services/firebase';
 //     )
 // };
 // const Login = () => { return (<div>Login</div>) };
-const Register = () => { return (<div>Register</div>) };
+// const Register = () => { return (<div>Register</div>) };
 const SignOut = () => { return (<div>SignOut</div>) };
 const Dashboard = () => { return (<div>Dashboard</div>) };
 const Profile = () => { return (<div>Profile</div>) };
