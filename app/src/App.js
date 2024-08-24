@@ -1,12 +1,13 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Footer from "./components/layouts/Footer";
 import Header from "./components/layouts/Header";
 
 export default function App() {
+    const location = useLocation();
     return (
         <>
-            <Header />
+            <Header location={location} />
             <div>
                 <Outlet />
             </div>

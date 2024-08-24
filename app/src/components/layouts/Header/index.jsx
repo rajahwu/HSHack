@@ -1,10 +1,27 @@
 // components/layouts/Header.jsx
 import { AppBar, Button, Toolbar, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
 
-export default function Header() {
+const locationPropType = PropTypes.shape({
+  pathname: PropTypes.string.isRequired,
+  search: PropTypes.string.isRequired,
+  hash: PropTypes.string.isRequired,
+  state: PropTypes.any,
+  key: PropTypes.string.isRequired,
+});
 
+Header.propTypes = {
+  location: locationPropType.isRequired,
+};
+
+export default function Header({ location }) {
+  const { user } = useAuth();
+  const pathname = location.pathname;
+  console.log("Header:", user, pathname);
+  
   return (
     <AppBar position="static">
       <Toolbar>
