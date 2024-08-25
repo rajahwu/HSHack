@@ -12,7 +12,6 @@ import { links } from '../../../lib/links';
   */
 export default function Header() {
   const { user } = useAuth();
-  console.log(user);
   const location = useLocation();
   const pathname = location.pathname;
 

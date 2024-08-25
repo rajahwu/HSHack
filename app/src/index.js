@@ -4,9 +4,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Dashboard, Home, Profile, Settings } from "./components/root";
+import CallLog from './components/services/CallLog';
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
+import './services/assembly_ai';
 import './services/firebase';
+import './services/gemini';
 
 const domNode = document.getElementById("root");
 const root = createRoot(domNode);
@@ -29,6 +32,7 @@ const router = createBrowserRouter([
                         //     return dashboardLoader({ username });
                         // },
                     },
+                    { path: "call-log", element: <CallLog /> },
                     { path: "settings", element: <Settings /> },
                     { path: "profile", element: <Profile /> },
                     { path: "signout", element: <SignOut />, action: signOutAction },
