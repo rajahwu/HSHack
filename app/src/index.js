@@ -5,6 +5,7 @@ import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Dashboard, Home, Profile, Settings } from "./components/root";
 import { AuthProvider } from "./context/AuthContext";
+import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
 import './services/firebase';
 
 const domNode = document.getElementById("root");
@@ -16,8 +17,8 @@ const router = createBrowserRouter([
         element: <App />,
         children: [
             { index: true, element: <Home /> },
-            { path: "register", element: <Register /> },
-            { path: "login", element: <Login /> },
+            { path: "register", element: <Register />, action: registerAction },
+            { path: "login", element: <Login />, action: loginAction },
             {
                 path: ":username", children: [
                     {
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
                     },
                     { path: "settings", element: <Settings /> },
                     { path: "profile", element: <Profile /> },
-                    { path: "signout", element: <SignOut /> },
+                    { path: "signout", element: <SignOut />, action: signOutAction },
                 ]
             },
 

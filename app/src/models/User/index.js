@@ -163,6 +163,26 @@ class User {
     }
   }
 
+  static async getById(id) {
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where('id', '==', id));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        throw new Error(`User with username ${id} not found`);
+      }
+
+      // Assuming usernames are unique, there should be only one matching document
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return new User(doc.id, data.email, data.displayName, data.photoURL);
+    } catch (error) {
+      console.error("Error getting user by username: ", error.message);
+      throw new Error('Failed to get user by username');
+    }
+  }
+
 }
 
 export { User };
