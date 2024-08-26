@@ -5,6 +5,9 @@ import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Dashboard, Home, Profile, Settings } from "./components/root";
 import CallLog from './components/services/CallLog';
+import CallView from './components/services/CallLog/CallView';
+import CallsMadeList from "./components/services/CallLog/CallsMadeList";
+import LeadsList from "./components/services/CallLog/LeadsList";
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
 import './services/assembly_ai';
@@ -32,7 +35,17 @@ const router = createBrowserRouter([
                         //     return dashboardLoader({ username });
                         // },
                     },
-                    { path: "call-log", element: <CallLog /> },
+                    { path: "call-log", element: <CallLog />,
+                        children: [
+                            { index: true, path: "new-call", element: <CallView /> },
+                            { path: "history", element: <CallsMadeList />, children: [
+                                { path: ":callId", element: <CallView />}
+                            ]},
+                            { path: "leads", element: <LeadsList />, children: [
+                                { path: ":callId", element: <CallView />}
+                            ]},
+                        ]
+                     },
                     { path: "settings", element: <Settings /> },
                     { path: "profile", element: <Profile /> },
                     { path: "signout", element: <SignOut />, action: signOutAction },

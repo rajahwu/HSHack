@@ -1,37 +1,32 @@
-import { Box, Container } from '@mui/material';
+import { Box, Paper } from '@mui/material';
 import React from 'react';
-import CallsMadeList from './CallsMadeList';
-import LeadsList from './LeadsList';
+import { Outlet } from "react-router-dom";
+import { Page, SideBar } from '../../layouts';
 
-const CallView = () => {
-  return (
-    <div>
-      <h2>Call View</h2>
-      <p>Call details will be displayed here</p>
-    </div>
-  );
-}
+const CallLogServicePageLinks = [
+  { title: "Leads", pathname: "leads" },
+  { title: "History", pathname: "history" },
+];
 
 const CallLogServicePage = () => {
   return (
-    <Container>
-      <Box sx={{
+    <Page>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, flexBasis: '25%' }}>
+        <SideBar title="Calls" links={CallLogServicePageLinks} />
+      </Box>
+      <Paper sx={{
         display: 'flex',
         flexDirection: 'row',
+        flexBasis: 'max-content',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: '2.5em',
         gap: 4,
-        padding: 4,
-        width: '100%'
+        padding: '1em',
       }}>
-        <LeadsList />
-        <CallsMadeList />
-      </Box>
-      <Box sx={{
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-        <CallView />
-      </Box>
-    </Container>
+        <Outlet />
+      </Paper>
+    </Page>
   );
 };
 

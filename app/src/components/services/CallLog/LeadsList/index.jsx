@@ -2,24 +2,49 @@ import CallIcon from "@mui/icons-material/Call";
 import EmailIcon from "@mui/icons-material/Email";
 import SmsIcon from "@mui/icons-material/Sms";
 import {
+  Box,
   Button,
   Card,
   CardActionArea,
   CardActions,
   CardContent,
   CardMedia,
-  List,
-  ListItem,
-  Typography,
+  Grid,
+  Typography
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { fetchLeads } from "../../../../data/call-log";
+
+const cardStyle = {
+  margin: "0.25em",
+  borderRadius: "5%",
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+  maxWidth: '100%',
+};
+
+const cardActionAreaStyle = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: "lightblue",
+  borderRadius: "5% 5% 0 0",
+  marginLeft: "auto",
+  padding: "0.5em",
+};
+
 
 const LeadsList = () => {
   const [leads, setLeads] = useState([]);
+  const navigate = useNavigate();
+
+  const handleNewCall = (leadId) => {
+    navigate(`/services/call-log/leads/${leadId}`);
+  };
 
   useEffect(() => {
-    // Fetch leads from API
     const fetchLeadsData = async () => {
       try {
         const response = await fetchLeads();
@@ -33,61 +58,54 @@ const LeadsList = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Leads</h2>
-      <List>
-        {leads &&
-          leads.map((lead) => (
-            <ListItem key={lead.id}>
-              <Card sx={{ margin: "0.5em", borderRadius: "5%" }}>
-                <CardActionArea
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "lightblue",
-                    borderRadius: "5% 5% 0 0",
-                    marginLeft: "auto",
-                  }}
-                >
-                  <CardMedia
+    <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: 600 }}>
+        <Typography variant="h4" component="h2">Leads</Typography>
+        <Grid container spacing={2}>
+          {leads &&
+            leads.map((lead) => (
+              <Grid item xs={12} sm={6} key={lead.id}>
+                <Card sx={cardStyle}>
+                  <CardActionArea sx={cardActionAreaStyle}>
+                    <CardMedia
+                      sx={{
+                        borderRadius: "50%",
+                        width: 50,
+                        height: 50,
+                        marginLeft: "0.5em",
+                      }}
+                      component="img"
+                      image="https://picsum.photos/50/50"
+                      alt={lead.name}
+                    />
+                    <CardContent>
+                      <Typography>{lead.name}</Typography>
+                      {/* <Typography>{lead.contact}</Typography> */}
+                      <Typography><NavLink>+122-333-555</NavLink></Typography>
+                    </CardContent>
+                  </CardActionArea>
+                  <CardActions
                     sx={{
-                      borderRadius: "50%",
-                      width: 50,
-                      height: 50,
-                      marginLeft: "0.5em",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    component="img"
-                    image="https://picsum.photos/50/50"
-                    alt={lead.name}
-                  />
-                  <CardContent>
-                    <Typography>{lead.name}</Typography>
-                    <Typography>{lead.contact}</Typography>
-                  </CardContent>
-                </CardActionArea>
-                <CardActions
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Button variant="contained">
-                    <CallIcon />
-                  </Button>
-                  <Button variant="contained">
-                    <EmailIcon />
-                  </Button>
-                  <Button variant="contained">
-                    <SmsIcon />
-                  </Button>
-                </CardActions>
-              </Card>
-            </ListItem>
-          ))}
-      </List>
-    </div>
+                  >
+                    <Button variant="contained" onClick={() => handleNewCall(lead.id)}>
+                      <CallIcon />
+                    </Button>
+                    <Button variant="contained">
+                      <EmailIcon />
+                    </Button>
+                    <Button variant="contained">
+                      <SmsIcon />
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+        </Grid>
+      <Outlet />
+    </Box>
   );
 };
 

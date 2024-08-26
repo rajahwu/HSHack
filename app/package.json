@@ -17,6 +17,7 @@
     "@dicebear/core": "^9.2.1",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@fontsource/roboto": "^5.0.14",
     "@google/generative-ai": "^0.17.1",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
@@ -29,7 +30,9 @@
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

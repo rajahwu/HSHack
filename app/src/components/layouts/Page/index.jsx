@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import React from 'react';
 
 /**
@@ -7,9 +8,9 @@ import React from 'react';
   */
 const Page = ({ children }) => {
   return (
-    <div>
+    <Box sx={{ display: 'flex' }}>
       {children}
-    </div>
+    </Box>
   );
 }
 
