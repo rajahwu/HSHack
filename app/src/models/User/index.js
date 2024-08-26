@@ -27,8 +27,8 @@ class User {
   constructor(id, email, displayName, avatar) {
     this.id = id;
     this.displayName = displayName || this.generateUsername(); // Use generateUsername method
-    this.photoURL = avatar;
     this.email = email;
+    this.photoURL = avatar;
   }
 
   // Create a new user document in Firestore after successful auth registration
