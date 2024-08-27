@@ -7,7 +7,7 @@
  * @param {string} [format='mp3'] - Format of the call recording.
  * @param {number} [size] - Size of the call recording in bytes.
  */
-class CallRecording {
+class AudioFile {
     constructor(id, salesCallId, audioUrl, format = 'mp3', size = null) {
       this.id = id;
       this.salesCallId = salesCallId;
@@ -29,5 +29,5 @@ class CallRecording {
     }
   }
   
-  export { CallRecording };
+  export { AudioFile };
   

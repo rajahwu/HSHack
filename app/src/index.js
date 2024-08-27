@@ -5,6 +5,7 @@ import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Dashboard, Home, Profile, Settings } from "./components/root";
 import CallLog from './components/services/CallLog';
+import AddLead from "./components/services/CallLog/AddLead";
 import CallView from './components/services/CallLog/CallView';
 import CallsMadeList from "./components/services/CallLog/CallsMadeList";
 import LeadsList from "./components/services/CallLog/LeadsList";
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
                         //     return dashboardLoader({ username });
                         // },
                     },
+                    { path: "leads/new", element: <AddLead /> },
                     { path: "call-log", element: <CallLog />,
                         children: [
                             { index: true, path: "new-call", element: <CallView /> },
@@ -42,6 +44,7 @@ const router = createBrowserRouter([
                                 { path: ":callId", element: <CallView />}
                             ]},
                             { path: "leads", element: <LeadsList />, children: [
+                                { path: "add", element: <AddLead /> },
                                 { path: ":callId", element: <CallView />}
                             ]},
                         ]

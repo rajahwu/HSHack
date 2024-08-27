@@ -8,7 +8,7 @@
  * @param {string} [transcriptionId] - Optional ID for the associated transcription.
  * @param {string} [status='pending'] - Status of the sales call (e.g., 'pending', 'completed', 'in-progress').
  */
-class SalesCall {
+class Contact {
   constructor(id, date, duration, participants, transcriptionId = null, status = 'pending') {
     this.id = id;
     this.date = date;
@@ -49,4 +49,4 @@ class SalesCall {
 
   }
 
-export { SalesCall };
+export { Contact };

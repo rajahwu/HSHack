@@ -14,7 +14,6 @@ export default function Header() {
   const { user } = useAuth();
   const location = useLocation();
   const pathname = location.pathname;
-  console.log(user);
 
   return (
     <AppBar position="static">
