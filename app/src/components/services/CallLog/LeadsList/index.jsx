@@ -12,9 +12,8 @@ import {
   Grid,
   Typography
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { fetchLeads } from "../../../../data/call-log";
+import React from "react";
+import { Form, NavLink, Outlet, useLoaderData } from "react-router-dom";
 
 const cardStyle = {
   margin: "0.25em",
@@ -37,73 +36,73 @@ const cardActionAreaStyle = {
 
 
 const LeadsList = () => {
-  const [leads, setLeads] = useState([]);
-  const navigate = useNavigate();
-
-  const handleNewCall = (leadId) => {
-    navigate(`/services/call-log/leads/${leadId}`);
-  };
-
-  useEffect(() => {
-    const fetchLeadsData = async () => {
-      try {
-        const response = await fetchLeads();
-        setLeads(response);
-      } catch (error) {
-        console.error("Error fetching leads:", error);
-      }
-    };
-
-    fetchLeadsData();
-  }, []);
+  const leads = useLoaderData();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: 600 }}>
-        <Typography variant="h4" component="h2">Leads</Typography>
-        <Grid container spacing={2}>
-          {leads &&
-            leads.map((lead) => (
-              <Grid item xs={12} sm={6} key={lead.id}>
-                <Card sx={cardStyle}>
-                  <CardActionArea sx={cardActionAreaStyle}>
-                    <CardMedia
-                      sx={{
-                        borderRadius: "50%",
-                        width: 50,
-                        height: 50,
-                        marginLeft: "0.5em",
-                      }}
-                      component="img"
-                      image="https://picsum.photos/50/50"
-                      alt={lead.name}
-                    />
-                    <CardContent>
-                      <Typography>{lead.name}</Typography>
-                      {/* <Typography>{lead.contact}</Typography> */}
-                      <Typography><NavLink>+122-333-555</NavLink></Typography>
-                    </CardContent>
-                  </CardActionArea>
-                  <CardActions
+      <Typography variant="h4" component="h2">Leads</Typography>
+      <Grid container spacing={2}>
+        {leads &&
+          leads.map((lead) => (
+            <Grid item xs={12} sm={6} key={lead.id}>
+              <Card sx={cardStyle}>
+                <CardActionArea sx={cardActionAreaStyle}>
+                  <CardMedia
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      borderRadius: "50%",
+                      width: 50,
+                      height: 50,
+                      marginLeft: "0.5em",
                     }}
-                  >
-                    <Button variant="contained" onClick={() => handleNewCall(lead.id)}>
+                    component="img"
+                    image={lead.photoURL}
+                    alt={lead.name}
+                  />
+                  <CardContent>
+                    <Typography>{lead.name}</Typography>
+                    <Typography>phone: <NavLink>{lead.phoneNumber}</NavLink></Typography>
+                    <Typography>cell: <NavLink>{lead.textNumber}</NavLink></Typography>
+                  </CardContent>
+                </CardActionArea>
+                <CardActions
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Form id="call" method="post">
+                    <input type="hidden" name="userId" value={lead.assignedTo} />
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input type="hidden" name="name" value={lead.name} />
+                    <input type="hidden" name="phoneNumber" value={lead.phoneNumber} />
+                    <Button variant="contained" type="submit">
                       <CallIcon />
                     </Button>
+                  </Form>
+                  <Form id="call" method="post">
+                    <input type="hidden" name="userId" value={lead.assignedTo} />
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input type="hidden" name="name" value={lead.name} />
+                    <input type="hidden" name="email" value={lead.email} />
                     <Button variant="contained">
                       <EmailIcon />
                     </Button>
+                  </Form>
+                  <Form id="call" method="post">
+                    <input type="hidden" name="userId" value={lead.assignedTo} />
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <input type="hidden" name="name" value={lead.name} />
+                    <input type="hidden" name="textNumber" value={lead.textNumber} />
                     <Button variant="contained">
                       <SmsIcon />
                     </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-        </Grid>
+                  </Form>
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+      </Grid>
       <Outlet />
     </Box>
   );

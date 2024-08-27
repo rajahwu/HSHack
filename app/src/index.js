@@ -12,6 +12,9 @@ import LeadsList from "./components/services/CallLog/LeadsList";
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
 import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
+import { action as contactLeadAction } from "./router/actions/services/call-log/contactLead";
+import { loader as callViewLoader } from "./router/loaders/services/call-log/callView";
+import { loader as leadListLoader } from "./router/loaders/services/call-log/leadList";
 import './services/assembly_ai';
 import './services/firebase';
 import './services/gemini';
@@ -38,18 +41,27 @@ const router = createBrowserRouter([
                         // },
                     },
                     { path: "leads/new", element: <AddLead />, action: addLeadAction },
-                    { path: "call-log", element: <CallLog />,
+                    {
+                        path: "call-log", element: <CallLog />,
                         children: [
                             { index: true, path: "new-call", element: <CallView /> },
-                            { path: "history", element: <CallsMadeList />, children: [
-                                { path: ":callId", element: <CallView />}
-                            ]},
-                            { path: "leads", element: <LeadsList />, children: [
-                                { path: "add", element: <AddLead /> },
-                                { path: ":callId", element: <CallView />}
-                            ]},
+                            {
+                                path: "history", element: <CallsMadeList />, children: [
+                                    { path: ":callId", element: <CallView /> }
+                                ]
+                            },
+                            {
+                                path: "leads",
+                                element: <LeadsList />,
+                                loader: leadListLoader,
+                                action: contactLeadAction,
+                                children: [
+                                    { path: "add", element: <AddLead /> },
+                                    { path: ":callId", element: <CallView />, loader: callViewLoader }
+                                ]
+                            },
                         ]
-                     },
+                    },
                     { path: "settings", element: <Settings /> },
                     { path: "profile", element: <Profile /> },
                     { path: "signout", element: <SignOut />, action: signOutAction },

@@ -44,7 +44,7 @@ class Customer {
    * Auto-generates a new customer record using random data.
    * @returns {Promise<Customer>}
    */
-  static async autoCreate() {
+  static async autoCreate({ assignedTo = null }) {
     try {
       const response = await axios.get('https://randomuser.me/api/');
       const data = response.data.results[0];
@@ -57,6 +57,7 @@ class Customer {
         email: data.email,
         phoneNumber: data.phone,
         textNumber: data.cell,
+        assignedTo,
         timestamp,
       });
 
@@ -68,8 +69,6 @@ class Customer {
         phoneNumber: data.phone,
         textNumber: data.cell,
       });
-
-      console.log('Document written with ID: ', docRef.id);
       return customer;
     } catch (error) {
       console.error('Error creating customer: ', error);
