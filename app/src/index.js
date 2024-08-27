@@ -11,6 +11,7 @@ import CallsMadeList from "./components/services/CallLog/CallsMadeList";
 import LeadsList from "./components/services/CallLog/LeadsList";
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
+import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
 import './services/assembly_ai';
 import './services/firebase';
 import './services/gemini';
@@ -36,7 +37,7 @@ const router = createBrowserRouter([
                         //     return dashboardLoader({ username });
                         // },
                     },
-                    { path: "leads/new", element: <AddLead /> },
+                    { path: "leads/new", element: <AddLead />, action: addLeadAction },
                     { path: "call-log", element: <CallLog />,
                         children: [
                             { index: true, path: "new-call", element: <CallView /> },

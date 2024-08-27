@@ -1,43 +1,49 @@
-// src/components/services/CallLog/AddLead.jsx
+import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../../context/AuthContext';
+import { Form } from 'react-router-dom';
 
+/**
+ * Component to add a new lead.
+ * @component
+ */
 const AddLead = () => {
-    const navigate = useNavigate();
-    const { user } = useAuth();
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Add lead submission logic here
-        navigate(`/${user.displayName}/call-log/leads`);
-    };
-
-    return (
-        <div>
-            <h2>Add a New Lead</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="leadName">Lead Name:</label>
-                    <input type="text" id="leadName" name="leadName" required />
-                </div>
-                <div>
-                    <label htmlFor="leadEmail">Lead Email:</label>
-                    <input type="email" id="leadEmail" name="leadEmail" required />
-                </div>
-                <div>
-                    <label htmlFor="leadPhone">Lead Phone:</label>
-                    <input type="tel" id="leadPhone" name="leadPhone" required />
-                </div>
-                <button type="submit">Add Lead</button>
-            </form>
-            <h2>Auto Generate Leads</h2>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="leadCount">Number of Leads:</label>
-                <input type="number" id="leadCount" name="leadCount" required />
-                <button type="submit">Auto Generate</button>
-            </form>
-        </div>
-    );
+  return (
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Typography component="h2" variant="h5">
+          Request Leads
+        </Typography>
+        <Form method="post" style={{ width: '100%' }}> {/* Ensure method is POST to trigger action */}
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="leadCount"
+            label="Number of Leads"
+            name="leadCount"
+            type="number"
+            InputProps={{ inputProps: { min: 1 } }}
+            autoFocus
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Find
+          </Button>
+        </Form>
+      </Box>
+    </Container>
+  );
 };
 
 export default AddLead;
