@@ -34,74 +34,76 @@ const cardActionAreaStyle = {
   padding: "0.5em",
 };
 
-
 const LeadsList = () => {
   const leads = useLoaderData();
+
+  if (!leads || leads.length === 0) {
+    return <Typography>No leads available.</Typography>;
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', maxWidth: 600 }}>
       <Typography variant="h4" component="h2">Leads</Typography>
       <Grid container spacing={2}>
-        {leads &&
-          leads.map((lead) => (
-            <Grid item xs={12} sm={6} key={lead.id}>
-              <Card sx={cardStyle}>
-                <CardActionArea sx={cardActionAreaStyle}>
-                  <CardMedia
-                    sx={{
-                      borderRadius: "50%",
-                      width: 50,
-                      height: 50,
-                      marginLeft: "0.5em",
-                    }}
-                    component="img"
-                    image={lead.photoURL}
-                    alt={lead.name}
-                  />
-                  <CardContent>
-                    <Typography>{lead.name}</Typography>
-                    <Typography>phone: <NavLink>{lead.phoneNumber}</NavLink></Typography>
-                    <Typography>cell: <NavLink>{lead.textNumber}</NavLink></Typography>
-                  </CardContent>
-                </CardActionArea>
-                <CardActions
+        {leads.map((lead) => (
+          <Grid item xs={12} sm={6} key={lead.id}>
+            <Card sx={cardStyle}>
+              <CardActionArea sx={cardActionAreaStyle}>
+                <CardMedia
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    borderRadius: "50%",
+                    width: 50,
+                    height: 50,
+                    marginLeft: "0.5em",
                   }}
-                >
-                  <Form id="call" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="phoneNumber" value={lead.phoneNumber} />
-                    <Button variant="contained" type="submit">
-                      <CallIcon />
-                    </Button>
-                  </Form>
-                  <Form id="call" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="email" value={lead.email} />
-                    <Button variant="contained">
-                      <EmailIcon />
-                    </Button>
-                  </Form>
-                  <Form id="call" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="textNumber" value={lead.textNumber} />
-                    <Button variant="contained">
-                      <SmsIcon />
-                    </Button>
-                  </Form>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
+                  component="img"
+                  image={lead.photoURL}
+                  alt={lead.name}
+                />
+                <CardContent>
+                  <Typography>{lead.name}</Typography>
+                  <Typography>phone: <NavLink>{lead.phoneNumber}</NavLink></Typography>
+                  <Typography>cell: <NavLink>{lead.textNumber}</NavLink></Typography>
+                </CardContent>
+              </CardActionArea>
+              <CardActions
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Form id="call" method="post">
+                  <input type="hidden" name="userId" value={lead.assignedTo} />
+                  <input type="hidden" name="leadId" value={lead.id} />
+                  <input type="hidden" name="name" value={lead.name} />
+                  <input type="hidden" name="phoneNumber" value={lead.phoneNumber} />
+                  <Button variant="contained" type="submit">
+                    <CallIcon />
+                  </Button>
+                </Form>
+                <Form id="email" method="post">
+                  <input type="hidden" name="userId" value={lead.assignedTo} />
+                  <input type="hidden" name="leadId" value={lead.id} />
+                  <input type="hidden" name="name" value={lead.name} />
+                  <input type="hidden" name="email" value={lead.email} />
+                  <Button variant="contained">
+                    <EmailIcon />
+                  </Button>
+                </Form>
+                <Form id="sms" method="post">
+                  <input type="hidden" name="userId" value={lead.assignedTo} />
+                  <input type="hidden" name="leadId" value={lead.id} />
+                  <input type="hidden" name="name" value={lead.name} />
+                  <input type="hidden" name="textNumber" value={lead.textNumber} />
+                  <Button variant="contained">
+                    <SmsIcon />
+                  </Button>
+                </Form>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
       <Outlet />
     </Box>

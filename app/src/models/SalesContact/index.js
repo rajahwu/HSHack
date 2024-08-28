@@ -1,137 +1,124 @@
-import { doc, setDoc } from "firebase/firestore"; // Import Firestore functions
-import { db } from "../../services/firebase"; // Assuming you have a firebase.js file with your Firestore instance
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { db } from "../../services/firebase";
 
 /**
- * Represents a sales call
- * @constructor
- * @param {string} id - Unique identifier for the sales call.
- * @param {string} date - Date of the sales call.
- * @param {number} duration - Duration of the sales call in seconds.
- * @param {string[]} participants - List of participant names or IDs.
- * @param {string} [transcriptionId] - Optional ID for the associated transcription.
- * @param {string} [status='pending'] - Status of the sales call (e.g., 'pending', 'completed', 'in-progress').
+ * Represents a sales contact.
+ * @class
  */
 class SalesContact {
+  /**
+   * Creates a new SalesContact instance.
+   * @param {Object} params - The parameters for creating a SalesContact.
+   * @param {string} params.id - Unique identifier.
+   * @param {Date} params.date - The date of the sales contact.
+   * @param {number} params.duration - The duration of the sales contact in seconds.
+   * @param {Object} params.participants - The participants involved in the sales contact.
+   * @param {string} [params.transcriptionId] - (optional) The transcription ID associated with the sales contact.
+   * @param {string} [params.status='pending'] - (optional) The status of the sales contact.
+   * @param {string} [params.type='call'] - (optional) The type of the sales contact.
+   */
   constructor({ id, date, duration, participants, transcriptionId = null, status = 'pending', type = 'call' }) {
     this.id = id;
     this.date = date;
     this.type = type;
-    this.duration = duration;
+    this.duration = duration || SalesContact.generateRandomDuration();
     this.participants = participants;
     this.transcriptionId = transcriptionId;
     this.status = status;
   }
 
   /**
-   * Create a new sales call record
-   * @param {string} date - Date of the sales call.
-   * @param {string} type - Type of the sales call (e.g., 'call', 'email', 'text').
-   * @param {number} duration - Duration of the sales call in seconds.
-   * @param {string[]} participants - List of participant names or IDs.
-   * @param {string} [transcriptionId] - Optional ID for the associated transcription.
-   * @param {string} [status='pending'] - Status of the sales call.
-   * @returns {SalesCall}
+   * Generates a random duration between 1 and 10 minutes (in seconds).
+   * @returns {number} The generated duration in seconds.
    */
-  static async create({ id, date, duration, participants, transcriptionId = null, status = 'pending' }) {
-    const id = doc(collection(db, "salesContacts")).id; // Generate a new document ID
-    const salesContact = new SalesContact({ id, date, type, duration, participants, transcriptionId, status });
+  static generateRandomDuration() {
+    return Math.floor(Math.random() * 600) + 60;
+  }
+
+  /**
+   * Creates a new SalesContact and stores it in Firestore.
+   * @param {Object} params - The parameters for creating a SalesContact.
+   * @param {Date} params.date - The date of the sales contact.
+   * @param {number} params.duration - The duration of the sales contact in seconds.
+   * @param {Object} params.participants - The participants involved in the sales contact.
+   * @param {string} [params.transcriptionId] - (optional) The transcription ID associated with the sales contact.
+   * @param {string} [params.status='pending'] - (optional) The status of the sales contact.
+   * @returns {Promise<SalesContact>} The created SalesContact instance.
+   */
+  static async create({ date, duration, participants, transcriptionId = null, status = 'pending' }) {
+    const id = doc(collection(db, "salesContacts")).id;
+    const salesContact = new SalesContact({ id, date, duration, participants, transcriptionId, status });
 
     await setDoc(doc(db, "salesContacts", id), {
       id,
       date,
-      type,
-      duration,
-      caller: participants.caller,
-      customer: participants.customer,
+      type: salesContact.type,
+      duration: salesContact.duration,
+      participants,
       transcriptionId,
-      status: this.transcriptionId ? 'completed' : status,
+      status
     });
 
     return salesContact;
   }
 
   /**
-   * Find sales contacts by customer
-   * @param {string} customerId - ID of the customer.
-   * @returns {Promise<SalesContact[]>} - Array of SalesContact objects.
-   */
-  static async findByCustomer(customerId) {
-    const q = query(
-      collection(db, "salesContacts"),
-      where("customer", "==", customerId)
-    );
-    const querySnapshot = await getDocs(q);
-    const salesContacts = [];
-    querySnapshot.forEach((doc) => {
-      salesContacts.push(new SalesContact(doc.data()));
-    });
-    return salesContacts;
-  }
-
-  /**
-   * Find sales contacts by caller
-   * @param {string} callerId - ID of the caller.
-   * @returns {Promise<SalesContact[]>} - Array of SalesContact objects.
-   */
-  static async findByCaller(callerId) {
-    const q = query(
-      collection(db, "salesContacts"),
-      where("caller", "==", callerId)
-    );
-    const querySnapshot = await getDocs(q);
-    const salesContacts = [];
-    querySnapshot.forEach((doc) => {
-      salesContacts.push(new SalesContact(doc.data()));
-    });
-    return salesContacts;
-  }
-
-  /**
-   * Find sales contacts by type
-   * @param {string} type - Type of the sales contact (e.g., 'call', 'email', 'text').
-   * @returns {Promise<SalesContact[]>} - Array of SalesContact objects.
-   */
-  static async findByType(type) {
-    const q = query(
-      collection(db, "salesContacts"),
-      where("type", "==", type)
-    );
-    const querySnapshot = await getDocs(q);
-    const salesContacts = [];
-    querySnapshot.forEach((doc) => {
-      salesContacts.push(new SalesContact(doc.data()));
-    });
-    return salesContacts;
-  }
-
-  /**
-   * Link a transcription to the sales call and update the status
-   * @param {string} transcriptionId - ID of the transcription.
+   * Links a transcription to the sales contact and updates Firestore.
+   * @param {string} transcriptionId - The transcription ID to link.
    * @returns {Promise<void>}
    */
   async linkTranscription(transcriptionId) {
     this.transcriptionId = transcriptionId;
-    this.status = 'completed'; // Automatically set status to 'completed' when transcription is linked
-
-    await updateDoc(doc(db, "salesContacts", this.id), {
-      transcriptionId: this.transcriptionId,
-      status: this.status,
-    });
+    await setDoc(doc(db, "salesContacts", this.id), { transcriptionId }, { merge: true });
   }
 
   /**
-   * Update the status of the sales call in the database
-   * @param {string} newStatus - New status of the sales call.
+   * Updates the status of the sales contact and updates Firestore.
+   * @param {string} newStatus - The new status of the sales contact.
    * @returns {Promise<void>}
    */
   async updateStatus(newStatus) {
     this.status = newStatus;
-
-    await updateDoc(doc(db, "salesContacts", this.id), {
-      status: this.status,
-    });
+    await setDoc(doc(db, "salesContacts", this.id), { status: newStatus }, { merge: true });
   }
 
+  /**
+   * Finds sales contacts by customer ID.
+   * @param {string} customerId - The ID of the customer.
+   * @returns {Promise<SalesContact[]>} A promise that resolves to an array of SalesContact instances.
+   */
+  static async findByCustomer(customerId) {
+    const q = query(collection(db, "salesContacts"), where("participants.customer", "==", customerId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => new SalesContact(doc.data()));
+  }
+
+  /**
+   * Finds sales contacts by caller ID.
+   * @param {string} callerId - The ID of the caller.
+   * @returns {Promise<SalesContact[]>} A promise that resolves to an array of SalesContact instances.
+   */
+  static async findByCaller(callerId) {
+    const q = query(collection(db, "salesContacts"), where("participants.caller", "==", callerId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => new SalesContact(doc.data()));
+  }
+
+  /**
+   * Finds a sales contact by its unique ID.
+   * @param {string} id - The unique ID of the sales contact.
+   * @returns {Promise<SalesContact|null>} A promise that resolves to the SalesContact instance or null if not found.
+   */
+  static async findById(id) {
+    const salesContactDoc = await getDoc(doc(db, "salesContacts", id));
+    if (salesContactDoc.exists()) {
+
+
+      return new SalesContact(salesContactDoc.data());
+    } else {
+      return null; // or throw an error if preferred
+    }
+  }
 }
 
 export { SalesContact };

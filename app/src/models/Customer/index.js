@@ -1,17 +1,10 @@
 import axios from 'axios';
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { db } from '../../services/firebase'; // Assuming you have your Firebase initialized in this file
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { db } from '../../services/firebase';
 
 /**
- * Represents a customer
- * @constructor
- * @param {string} id - Unique identifier.
- * @param {string} name - Customer name.
- * @param {string} photoURL - Customer photo url.
- * @param {string} email - Customer email.
- * @param {string} phoneNumber - Customer phone number.
- * @param {string} [textNumber] - (optional) Customer text number.
- * @param {string} [assignedTo] - (optional) Assigned user.
+ * Represents a customer.
+ * @class
  */
 class Customer {
   constructor({ id, name, photoURL, email, phoneNumber, textNumber = '', assignedTo = null }) {
@@ -24,27 +17,11 @@ class Customer {
     this.assignedTo = assignedTo;
   }
 
-  /**
-   * Create a new customer record
-   * @param {Object} customerData - Customer data object.
-   * @param {string} customerData.id - Customer ID.
-   * @param {string} customerData.name - Customer name.
-   * @param {string} customerData.email - Customer email.
-   * @param {string} customerData.photoURL - Customer photo URL.
-   * @param {string} customerData.phoneNumber - Customer phone number.
-   * @param {string} [customerData.textNumber] - (optional) Customer text number.
-   * @param {string} [customerData.assignedTo] - (optional) Assigned user.
-   * @returns {Customer}
-   */
   static create({ id, name, email, photoURL, phoneNumber, textNumber = '', assignedTo = null }) {
     return new Customer({ id, name, email, photoURL, phoneNumber, textNumber, assignedTo });
   }
 
-  /**
-   * Auto-generates a new customer record using random data.
-   * @returns {Promise<Customer>}
-   */
-  static async autoCreate({ assignedTo = null }) {
+  static async autoCreate({ assignedTo = null } = {}) {
     try {
       const response = await axios.get('https://randomuser.me/api/');
       const data = response.data.results[0];
@@ -61,30 +38,22 @@ class Customer {
         timestamp,
       });
 
-      const customer = this.create({
+      return new Customer({
         id: docRef.id,
         name: `${data.name.first} ${data.name.last}`,
         photoURL: data.picture.large,
         email: data.email,
         phoneNumber: data.phone,
         textNumber: data.cell,
+        assignedTo,
       });
-      return customer;
     } catch (error) {
       console.error('Error creating customer: ', error);
       throw new Error('Error creating customer');
     }
   }
 
-  /**
-   * Update customer details
-   * @param {string} name - New customer name.
-   * @param {string} email - New customer email.
-   * @param {string} photoURL - New customer photo URL.
-   * @param {string} phoneNumber - New customer phone number.
-   * @param {string} [textNumber] - (optional) New customer text number.
-   */
-  updateDetails(name, email, photoURL, phoneNumber, textNumber = '') {
+  updateDetails({ name, email, photoURL, phoneNumber, textNumber = '' }) {
     this.name = name;
     this.email = email;
     this.photoURL = photoURL;
@@ -92,70 +61,81 @@ class Customer {
     this.textNumber = textNumber;
   }
 
-  /**
-   * Assign a user to the customer and update in Firestore
-   * @param {string} userId - User to assign.
-   */
   async assignUser(userId) {
-    this.assignedTo = userId;
-    const customerRef = doc(db, 'customers', this.id);
     try {
+      const customerRef = doc(db, 'customers', this.id);
       await updateDoc(customerRef, {
         assignedTo: userId
       });
-      console.log('User assigned successfully');
+      this.assignedTo = userId;
     } catch (error) {
       console.error('Error assigning user: ', error);
       throw new Error('Error assigning user');
     }
   }
 
-  /**
-   * Retrieve all customers from Firestore
-   * @returns {Promise<Customer[]>} - A promise that resolves to an array of Customer instances.
-   */
-  static async getAllCustomers() {
-    const customerRef = collection(db, 'customers');
-    const customerQuerySnapshot = await getDocs(customerRef);
-    const customers = customerQuerySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return new Customer({
-        id: doc.id,
-        name: data.name,
-        photoURL: data.photoURL,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        textNumber: data.textNumber,
-        assignedTo: data.assignedTo,
-      });
-    });
-    return customers;
-  }
-
-  /**
-   * Retrieve all customers assigned to a specific user ID
-   * @param {string} userId - The ID of the user to filter customers by.
-   * @returns {Promise<Customer[]>} - A promise that resolves to an array of Customer instances assigned to the user.
-   */
   static async getCustomersAssignedTo(userId) {
-    const customerRef = collection(db, 'customers');
-    const q = query(customerRef, where("assignedTo", "==", userId));
-    const customerQuerySnapshot = await getDocs(q);
-    const customers = customerQuerySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return new Customer({
-        id: doc.id,
-        name: data.name,
-        photoURL: data.photoURL,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        textNumber: data.textNumber,
-        assignedTo: data.assignedTo,
-      });
-    });
-    return customers;
+    try {
+      const q = query(collection(db, 'customers'), where('assignedTo', '==', userId));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => new Customer({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error fetching assigned customers: ', error);
+      throw new Error('Error fetching assigned customers');
+    }
   }
 
+  /**
+   * Finds a customer by ID.
+   * @param {string} customerId - The ID of the customer.
+   * @returns {Promise<Customer|null>} A promise that resolves to the Customer instance or null if not found.
+   */
+  static async findById(customerId) {
+    try {
+      const customerDoc = await getDoc(doc(db, 'customers', customerId));
+      if (customerDoc.exists()) {
+        return new Customer({ id: customerDoc.id, ...customerDoc.data() });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding customer by ID: ', error);
+      throw new Error('Error finding customer by ID');
+    }
+  }
+
+  /**
+   * Finds a customer by email.
+   * @param {string} email - The email of the customer.
+   * @returns {Promise<Customer|null>} A promise that resolves to the Customer instance or null if not found.
+   */
+  static async findByEmail(email) {
+    try {
+      const q = query(collection(db, 'customers'), where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const docData = querySnapshot.docs[0].data();
+        return new Customer({ id: querySnapshot.docs[0].id, ...docData });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding customer by email: ', error);
+      throw new Error('Error finding customer by email');
+    }
+  }
+
+  /**
+   * Retrieves all customers.
+   * @returns {Promise<Customer[]>} A promise that resolves to an array of Customer instances.
+   */
+  static async findAll() {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'customers'));
+      return querySnapshot.docs.map(doc => new Customer({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error retrieving all customers: ', error);
+      throw new Error('Error retrieving all customers');
+    }
+  }
 }
 
-export { Customer };
+export default Customer;

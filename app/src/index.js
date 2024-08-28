@@ -46,18 +46,18 @@ const router = createBrowserRouter([
                         children: [
                             { index: true, path: "new-call", element: <CallView /> },
                             {
-                                path: "history", element: <CallsMadeList />, children: [
-                                    { path: ":callId", element: <CallView /> }
-                                ]
-                            },
-                            {
                                 path: "leads",
                                 element: <LeadsList />,
                                 loader: leadListLoader,
                                 action: contactLeadAction,
                                 children: [
                                     { path: "add", element: <AddLead /> },
-                                    { path: ":callId", element: <CallView />, loader: callViewLoader }
+                                    { path: "call/:callId", element: <CallView />, loader: callViewLoader }
+                                ]
+                            },
+                            {
+                                path: "history", element: <CallsMadeList />, children: [
+                                    { path: ":callId", element: <CallView /> }
                                 ]
                             },
                         ]

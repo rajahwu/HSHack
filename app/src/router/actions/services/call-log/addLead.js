@@ -1,6 +1,6 @@
 // src/router/actions/services/call-log/addLead.js
 import { redirect } from "react-router-dom";
-import { Customer } from "../../../../models/Customer";
+import Customer from "../../../../models/Customer";
 import { auth } from '../../../../services/firebase';
 
 export async function action({ request, params }) {
