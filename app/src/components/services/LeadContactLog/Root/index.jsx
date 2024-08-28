@@ -1,18 +1,18 @@
 import { Box, Paper } from '@mui/material';
 import React from 'react';
 import { Outlet } from "react-router-dom";
-import { Page, SideBar } from '../../layouts';
+import { Page, SideBar } from '../../../layouts';
 
-const CallLogServicePageLinks = [
+const LeadContactLogServicePageLinks = [
   { title: "Leads", pathname: "leads" },
   { title: "History", pathname: "history" },
 ];
 
-const CallLogServicePage = () => {
+const LeadContactLogServicePage = () => {
   return (
     <Page>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, flexBasis: '25%' }}>
-        <SideBar title="Calls" links={CallLogServicePageLinks} />
+        <SideBar title="Calls" links={LeadContactLogServicePageLinks} />
       </Box>
       <Paper sx={{
         display: 'flex',
@@ -30,4 +30,4 @@ const CallLogServicePage = () => {
   );
 };
 
-export default CallLogServicePage;
+export default LeadContactLogServicePage;

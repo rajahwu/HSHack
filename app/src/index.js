@@ -4,11 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Dashboard, Home, Profile, Settings } from "./components/root";
-import CallLog from './components/services/CallLog';
-import AddLead from "./components/services/CallLog/AddLead";
-import CallView from './components/services/CallLog/CallView';
-import CallsMadeList from "./components/services/CallLog/CallsMadeList";
-import LeadsList from "./components/services/CallLog/LeadsList";
+import CallLog, { AddLead, ContactHistory, ContactView, LeadsList } from "./components/services/LeadContactLog"
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
 import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
@@ -44,7 +40,7 @@ const router = createBrowserRouter([
                     {
                         path: "call-log", element: <CallLog />,
                         children: [
-                            { index: true, path: "new-call", element: <CallView /> },
+                            { index: true, path: "new-call", element: <ContactView /> },
                             {
                                 path: "leads",
                                 element: <LeadsList />,
@@ -52,12 +48,12 @@ const router = createBrowserRouter([
                                 action: contactLeadAction,
                                 children: [
                                     { path: "add", element: <AddLead /> },
-                                    { path: "call/:callId", element: <CallView />, loader: callViewLoader }
+                                    { path: "call/:callId", element: <ContactView />, loader: callViewLoader }
                                 ]
                             },
                             {
-                                path: "history", element: <CallsMadeList />, children: [
-                                    { path: ":callId", element: <CallView /> }
+                                path: "history", element: <ContactHistory />, children: [
+                                    { path: ":callId", element: <ContactView /> }
                                 ]
                             },
                         ]

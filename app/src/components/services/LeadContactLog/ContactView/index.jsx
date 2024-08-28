@@ -5,7 +5,7 @@ import { Box, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/
 import React from 'react';
 import { useLoaderData } from 'react-router-dom';
 
-const CallView = () => {
+const ContactView = () => {
   const { salesContact } = useLoaderData();
   const call = salesContact;
   return (
@@ -42,4 +42,4 @@ const CallView = () => {
   );
 }
 
-export default CallView;
+export default ContactView;
