@@ -45,14 +45,14 @@ class SalesContact {
    * @param {string} [params.status='pending'] - (optional) The status of the sales contact.
    * @returns {Promise<SalesContact>} The created SalesContact instance.
    */
-  static async create({ date, duration, participants, transcriptionId = null, status = 'pending' }) {
+  static async create({ date, duration, participants, transcriptionId = null, status = 'pending', type }) {
     const id = doc(collection(db, "salesContacts")).id;
-    const salesContact = new SalesContact({ id, date, duration, participants, transcriptionId, status });
+    const salesContact = new SalesContact({ id, date, duration, participants, transcriptionId, status, type });
 
     await setDoc(doc(db, "salesContacts", id), {
       id,
       date,
-      type: salesContact.type,
+      type,
       duration: salesContact.duration,
       participants,
       transcriptionId,

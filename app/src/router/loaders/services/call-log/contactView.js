@@ -11,14 +11,14 @@ export async function loader({ params }) {
     return redirect('/login');
   }
 
-  const { username, callId } = params;
+  const { username, contactId } = params;
 
   if (username !== user.displayName) {
     return redirect('/services/call-log/leads');
   }
 
   try {
-    const salesContact = await SalesContact.findById(callId);
+    const salesContact = await SalesContact.findById(contactId);
 
     if (!salesContact) {
       throw new Error('Sales contact not found');

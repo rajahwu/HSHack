@@ -7,39 +7,69 @@ import { useLoaderData } from 'react-router-dom';
 
 const ContactView = () => {
   const { salesContact } = useLoaderData();
-  const call = salesContact;
+
+  // Check the type of sales contact (call, email, text)
+  const contactType = salesContact.type;
+  console.log("Contact View contactType:", contactType)
+
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+      {/* Common UI for all types */}
       <CardMedia
         component="img"
         sx={{ width: 151 }}
-        image={call.customer.photoURL}
-        alt={call.customer.name}
+        image={salesContact.customer.photoURL}
+        alt={salesContact.customer.name}
       />
       <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         <CardContent sx={{ flex: '1 0 auto' }}>
-          <Typography component="h3" variant="h5">Calling ...</Typography>
-          <Typography component="div" variant="h6">
-            {call.customer.phoneNumber}
-          </Typography>
+          {/* Conditional Rendering Based on Contact Type */}
+          {contactType === 'call' && (
+            <>
+              <Typography component="h3" variant="h5">Calling ...</Typography>
+              <Typography component="div" variant="h6">
+                {salesContact.customer.phoneNumber}
+              </Typography>
+            </>
+          )}
+          {contactType === 'email' && (
+            <>
+              <Typography component="h3" variant="h5">Emailing ...</Typography>
+              <Typography component="div" variant="h6">
+                {salesContact.customer.email}
+              </Typography>
+            </>
+          )}
+          {contactType === 'text' && (
+            <>
+              <Typography component="h3" variant="h5">Texting ...</Typography>
+              <Typography component="div" variant="h6">
+                {salesContact.customer.textNumber}
+              </Typography>
+            </>
+          )}
           <Typography variant="subtitle1" color="text.secondary" component="div">
-            {call.customer.name}
+            {salesContact.customer.name}
           </Typography>
         </CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
-          <IconButton aria-label="previous">
-            <SkipPreviousIcon />
-          </IconButton>
-          <IconButton aria-label="play/pause">
-            <PlayArrowIcon sx={{ height: 38, width: 38 }} />
-          </IconButton>
-          <IconButton aria-label="next">
-            <SkipNextIcon />
-          </IconButton>
-        </Box>
+
+        {/* Media Controls for Call Type */}
+        {contactType === 'call' && (
+          <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
+            <IconButton aria-label="previous">
+              <SkipPreviousIcon />
+            </IconButton>
+            <IconButton aria-label="play/pause">
+              <PlayArrowIcon sx={{ height: 38, width: 38 }} />
+            </IconButton>
+            <IconButton aria-label="next">
+              <SkipNextIcon />
+            </IconButton>
+          </Box>
+        )}
       </Box>
     </Card>
   );
-}
+};
 
 export default ContactView;

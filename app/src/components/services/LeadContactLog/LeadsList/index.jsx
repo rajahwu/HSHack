@@ -87,16 +87,16 @@ const LeadsList = () => {
                   <input type="hidden" name="leadId" value={lead.id} />
                   <input type="hidden" name="name" value={lead.name} />
                   <input type="hidden" name="email" value={lead.email} />
-                  <Button variant="contained">
+                  <Button variant="contained" type="submit">
                     <EmailIcon />
                   </Button>
                 </Form>
-                <Form id="sms" method="post">
+                <Form id="text" method="post">
                   <input type="hidden" name="userId" value={lead.assignedTo} />
                   <input type="hidden" name="leadId" value={lead.id} />
                   <input type="hidden" name="name" value={lead.name} />
                   <input type="hidden" name="textNumber" value={lead.textNumber} />
-                  <Button variant="contained">
+                  <Button variant="contained" type="submit">
                     <SmsIcon />
                   </Button>
                 </Form>

@@ -7,10 +7,12 @@ import { Dashboard, Home, Profile, Settings } from "./components/root";
 import CallLog, { AddLead, ContactHistory, ContactView, LeadsList } from "./components/services/LeadContactLog"
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
+
 import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
 import { action as contactLeadAction } from "./router/actions/services/call-log/contactLead";
-import { loader as callViewLoader } from "./router/loaders/services/call-log/callView";
+import { loader as callViewLoader } from "./router/loaders/services/call-log/contactView";
 import { loader as leadListLoader } from "./router/loaders/services/call-log/leadList";
+
 import './services/assembly_ai';
 import './services/firebase';
 import './services/gemini';
@@ -40,7 +42,7 @@ const router = createBrowserRouter([
                     {
                         path: "call-log", element: <CallLog />,
                         children: [
-                            { index: true, path: "new-call", element: <ContactView /> },
+                            { index: true, path: "new-contact", element: <ContactView /> },
                             {
                                 path: "leads",
                                 element: <LeadsList />,
@@ -48,7 +50,9 @@ const router = createBrowserRouter([
                                 action: contactLeadAction,
                                 children: [
                                     { path: "add", element: <AddLead /> },
-                                    { path: "call/:callId", element: <ContactView />, loader: callViewLoader }
+                                    { path: "call/:contactId", element: <ContactView />, loader: callViewLoader },
+                                    { path: "email/:contactId", element: <ContactView />, loader: callViewLoader },
+                                    { path: "text/:contactId", element: <ContactView />, loader: callViewLoader }
                                 ]
                             },
                             {

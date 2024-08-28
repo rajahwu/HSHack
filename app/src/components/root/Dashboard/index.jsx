@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  console.log(user);
   const leads = [];
   const contactHistory = [];
 
@@ -15,7 +16,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6}>
           <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
             {user && <img
-              src={user.displayImage || 'https://picsum.photos/100'}
+              src={user.photoURL || 'https://picsum.photos/100'}
               alt={user.displayName}
               style={{ borderRadius: '50%', width: 100, height: 100, marginBottom: '1em' }}
             />}

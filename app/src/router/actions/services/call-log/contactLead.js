@@ -15,10 +15,8 @@ export const action = async ({ request }) => {
   };
 
   const type = phoneNumber ? "call" : email ? "email" : textNumber ? "text" : "unknown";
-
   // Perform any necessary logic with leadData here
   // You could save the data, initiate a call, send an email, etc.
-  
   const salesContact = await SalesContact.create({
     date: new Date(),
     type: type,
@@ -32,7 +30,7 @@ export const action = async ({ request }) => {
     textNumber: leadData.textNumber,
   });
 
-  const contactViewLink = `${phoneNumber ? 'call' : email ? 'email' : 'text'}/${salesContact.id}`;
+  const contactViewLink = `${salesContact.type}/${salesContact.id}`;
 
   // Redirect to CallView with the lead data as state or URL parameters
   return redirect(contactViewLink); // Make sure the path matches your routing setup
