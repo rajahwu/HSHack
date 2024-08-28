@@ -1,5 +1,6 @@
 import { redirect } from "react-router-dom";
 import { SalesContact } from "../../../../models/SalesContact";
+import { Correspondence } from "../../../../models/Correspondence";
 
 export const action = async ({ request }) => {
   const formData = await request.formData();
@@ -29,6 +30,12 @@ export const action = async ({ request }) => {
     email: leadData.email,
     textNumber: leadData.textNumber,
   });
+
+  console.log(salesContact)
+  
+   // Create Correspondence
+  const correspondence = await Correspondence.createFromSalesContact(salesContact);
+  console.log(correspondence)
 
   const contactViewLink = `${salesContact.type}/${salesContact.id}`;
 

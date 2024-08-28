@@ -33,10 +33,6 @@ const router = createBrowserRouter([
                     {
                         path: "dashboard",
                         element: <Dashboard />,
-                        // loader: async ({ params }) => {
-                        //     const username = params.username;
-                        //     return dashboardLoader({ username });
-                        // },
                     },
                     { path: "leads/new", element: <AddLead />, action: addLeadAction },
                     {

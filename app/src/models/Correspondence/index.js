@@ -18,7 +18,7 @@ class Correspondence {
     this.content = content;
   }
 
-  /**
+   /**
    * Creates a correspondence for a sales contact using Gemini API.
    * @param {SalesContact} salesContact - The sales contact object.
    * @returns {Promise<Correspondence>} The created Correspondence instance.
@@ -26,14 +26,23 @@ class Correspondence {
    */
   static async createFromSalesContact(salesContact) {
     try {
+      throw Error('Testing')
       const prompt = createGeminiPrompt(salesContact);
-      const response = await genai.generate_content(prompt);
+      const response = await genai.generateContent(prompt);
       const content = JSON.parse(response.text);
 
       return new Correspondence({ id: response.id, salesContactId: salesContact.id, content });
     } catch (error) {
       console.error("Error creating correspondence: ", error.message);
-      throw new Error('Failed to create correspondence');
+
+      // Fallback content based on sales contact type
+      const fallbackContent = getFallbackContent(salesContact.type);
+
+      return new Correspondence({
+        id: `fallback-${salesContact.id}`,
+        salesContactId: salesContact.id,
+        content: fallbackContent
+      });
     }
   }
 
@@ -60,7 +69,7 @@ class Correspondence {
  * @returns {string} The generated prompt for the Gemini API.
  */
 function createGeminiPrompt(salesContact) {
-  const { type, duration } = salesContact;
+  const { type, duration, participants } = salesContact;
   const maxDuration = 90; // 1.5 minutes in seconds
 
   // Calculate approximate lengths based on type
@@ -74,9 +83,9 @@ function createGeminiPrompt(salesContact) {
       prompt = `
         Generate a sales call transcript with the following details:
         ID: ${salesContact.id}
-        Date: ${salesContact.date}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
         Duration: ${duration} seconds
-        Participants: ${salesContact.participants.join(', ')}
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
 
         Use the following format for the response:
         {
@@ -97,9 +106,9 @@ function createGeminiPrompt(salesContact) {
       prompt = `
         Generate an email chain with the following details:
         ID: ${salesContact.id}
-        Date: ${salesContact.date}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
         Duration: ${duration} seconds
-        Participants: ${salesContact.participants.join(', ')}
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
 
         Use the following format for the response:
         {
@@ -117,9 +126,9 @@ function createGeminiPrompt(salesContact) {
       prompt = `
         Generate a text message chain with the following details:
         ID: ${salesContact.id}
-        Date: ${salesContact.date}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
         Duration: ${duration} seconds
-        Participants: ${salesContact.participants.join(', ')}
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
 
         Use the following format for the response:
         {
@@ -205,5 +214,56 @@ function generateTextChain(length) {
   return textMessages.slice(0, length);
 }
 
+/**
+ * Generates fallback content based on the type of sales contact.
+ * @param {string} type - The type of sales contact (e.g., 'call', 'email', 'text').
+ * @returns {Object} The fallback content for the given type.
+ */
+function getFallbackContent(type) {
+  switch (type) {
+    case 'call':
+      return {
+        script: {
+          caller: [
+            "Hey, how are you?",
+            "Do you want our super awesome product?"
+          ],
+          customer: [
+            "Good, thanks!",
+            "No, thank you."
+          ]
+        },
+        summary: "The caller initiated a sales call, inquiring about the customer's interest in their product. The customer politely declined.",
+        score: 10,
+        outcome: "failure"
+      };
+
+    case 'email':
+      return {
+        chain: [
+          "Subject: Check out our new product!\n\nHi there, check out our new product that we think you’ll love!",
+          "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!"
+        ],
+        summary: "The caller sent two emails promoting a new product and a sale.",
+        score: 50,
+        outcome: "failure"
+      };
+
+    case 'text':
+      return {
+        chain: [
+          "Hi! Just checking in.",
+          "Are you interested in our product?",
+          "We have a special offer for you!"
+        ],
+        summary: "The caller checked in and offered a special deal on their product.",
+        score: 60,
+        outcome: "failure"
+      };
+
+    default:
+      throw new Error('Unsupported contact type for fallback content');
+  }
+}
 
 export { Correspondence };
