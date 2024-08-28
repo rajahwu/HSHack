@@ -34,8 +34,6 @@ export async function loader({ params }) {
     salesContact.customer = customer;
     salesContact.caller = { username: user.displayName, id: user.uid };
 
-    console.log(salesContact);
-
     return { salesContact }; // Return the sales contact data
 
   } catch (error) {

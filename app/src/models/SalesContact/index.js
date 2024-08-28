@@ -21,10 +21,31 @@ class SalesContact {
     this.id = id;
     this.date = date;
     this.type = type;
-    this.duration = duration || SalesContact.generateRandomDuration();
+    this.duration = duration || SalesContact.generateRandomValue(type);
     this.participants = participants;
     this.transcriptionId = transcriptionId;
     this.status = status;
+  }
+
+    /**
+   * Generates a random value based on the contact type.
+   * @param {string} type - The type of sales contact ('call', 'email', or 'text').
+   * @returns {number} The generated random value.
+   */
+  static generateRandomValue(type) {
+    switch (type) {
+      case 'call':
+        // Duration between 1 second and 90 seconds (1.5 minutes)
+        return Math.floor(Math.random() * 90) + 1;
+      case 'email':
+        // Chain length between 1 and 6
+        return Math.floor(Math.random() * 6) + 1;
+      case 'text':
+        // Number of messages between 1 and 20
+        return Math.floor(Math.random() * 20) + 1;
+      default:
+        return 0; // Default value for unknown types
+    }
   }
 
   /**

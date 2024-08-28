@@ -10,7 +10,6 @@ const ContactView = () => {
 
   // Check the type of sales contact (call, email, text)
   const contactType = salesContact.type;
-  console.log("Contact View contactType:", contactType)
 
   return (
     <Card sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
