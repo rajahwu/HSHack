@@ -60,27 +60,80 @@ class Correspondence {
  * @returns {string} The generated prompt for the Gemini API.
  */
 function createGeminiPrompt(salesContact) {
-  const dialogLines = Math.min(Math.floor(salesContact.duration / 60), 10); // Max 10 lines based on duration
-  const callScript = generateCallScript(dialogLines);
+  const { type, duration } = salesContact;
+  const maxDuration = 90; // 1.5 minutes in seconds
 
-  const prompt = `
-    Generate a sales call transcript with the following details:
-    ID: ${salesContact.id}
-    Date: ${salesContact.date}
-    Duration: ${salesContact.duration} seconds
-    Participants: ${salesContact.participants.join(', ')}
+  // Calculate approximate lengths based on type
+  const length = Math.min(duration, maxDuration);
+  let prompt = '';
 
-    Use the following format for the response:
-    {
-      "script": {
-        "caller": ${JSON.stringify(callScript.caller)},
-        "customer": ${JSON.stringify(callScript.customer)}
-      },
-      "summary": "Provide a summary based on the script.",
-      "score": "Provide a score (0-100).",
-      "outcome": "Choose from predefined outcomes: ['success', 'failure']."
-    }
-  `;
+  switch (type) {
+    case 'call':
+      const callLines = Math.min(Math.floor(length / 60), 10); // Lines based on duration
+      const callScript = generateCallScript(callLines);
+      prompt = `
+        Generate a sales call transcript with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date}
+        Duration: ${duration} seconds
+        Participants: ${salesContact.participants.join(', ')}
+
+        Use the following format for the response:
+        {
+          "script": {
+            "caller": ${JSON.stringify(callScript.caller)},
+            "customer": ${JSON.stringify(callScript.customer)}
+          },
+          "summary": "Provide a summary based on the script.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }
+      `;
+      break;
+
+    case 'email':
+      const emailChainLength = Math.min(Math.floor(length / 10), 6); // Chain length based on duration
+      const emailChain = generateEmailChain(emailChainLength);
+      prompt = `
+        Generate an email chain with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date}
+        Duration: ${duration} seconds
+        Participants: ${salesContact.participants.join(', ')}
+
+        Use the following format for the response:
+        {
+          "chain": ${JSON.stringify(emailChain)},
+          "summary": "Provide a summary based on the chain.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }
+      `;
+      break;
+
+    case 'text':
+      const textChainLength = Math.min(Math.floor(length / 5), 20); // Message chain length based on duration
+      const textChain = generateTextChain(textChainLength);
+      prompt = `
+        Generate a text message chain with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date}
+        Duration: ${duration} seconds
+        Participants: ${salesContact.participants.join(', ')}
+
+        Use the following format for the response:
+        {
+          "chain": ${JSON.stringify(textChain)},
+          "summary": "Provide a summary based on the chain.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }
+      `;
+      break;
+
+    default:
+      throw new Error('Unsupported contact type');
+  }
 
   return prompt;
 }
@@ -112,5 +165,45 @@ function generateCallScript(lines) {
     customer: customerLines.slice(0, Math.floor(lines / 2)),
   };
 }
+
+/**
+ * Generates a simplified email chain.
+ * @param {number} length - Number of emails in the chain.
+ * @returns {Array<string>} The generated email chain.
+ */
+function generateEmailChain(length) {
+  const emailTemplates = [
+    "Subject: Check out our new product!\n\nHi there, check out our new product that we think you’ll love!",
+    "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!",
+    "Subject: Last chance to get 20% off!\n\nThis is your last chance to get 20% off on our products.",
+    "Subject: Thank you for your purchase!\n\nThank you for purchasing from us. We hope you enjoy your product.",
+    "Subject: How was your experience?\n\nWe’d love to hear about your experience with our product."
+  ];
+
+  return emailTemplates.slice(0, length);
+}
+
+/**
+ * Generates a simplified text message chain.
+ * @param {number} length - Number of messages in the chain.
+ * @returns {Array<string>} The generated text message chain.
+ */
+function generateTextChain(length) {
+  const textMessages = [
+    "Hi! Just checking in.",
+    "Are you interested in our product?",
+    "We have a special offer for you!",
+    "Don’t miss out on this opportunity!",
+    "Let me know if you have any questions.",
+    "Looking forward to hearing from you.",
+    "Thank you for your time!",
+    "Have a great day!",
+    "Talk to you soon!",
+    "Best regards!"
+  ];
+
+  return textMessages.slice(0, length);
+}
+
 
 export { Correspondence };
