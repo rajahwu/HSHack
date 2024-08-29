@@ -11,6 +11,7 @@ import { loginAction, registerAction, signOutAction } from "./router/actions/aut
 
 import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
 import { action as contactLeadAction } from "./router/actions/services/call-log/contactLead";
+import { loader as dashboardLoader } from "./router/loaders/dashboard";
 import { loader as leadListLoader } from "./router/loaders/services/call-log/leadList";
 import { loader as contactViewLoader } from "./router/loaders/services/call-log/contactView";
 import { loader as contactHistoryLoader  } from "./router/loaders/services/call-log/contactHistory";
@@ -37,9 +38,10 @@ const router = createBrowserRouter([
                 path: ":username", children: [
                     {
                         path: "dashboard",
-                        element: <Dashboard />, 
+                        element: <Dashboard />,
+                        loader: dashboardLoader, 
                         children: [
-                            { index: true, element: <DashboardContent /> },
+                            { index: true, element: <DashboardContent />, loader: dashboardLoader },
                             { path: "settings", element: <Settings /> },
                             { path: "profile", element: <Profile /> },
                         ],

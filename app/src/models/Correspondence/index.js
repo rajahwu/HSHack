@@ -67,12 +67,13 @@ class Correspondence {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        return new Correspondence({
-          id: data.id,
+        const correspondence = new Correspondence({
+          id: id,
           salesContactId: data.salesContactId,
           content: data.content,
           fallbackId: data.fallbackId,
         });
+        return correspondence;
       } else {
         throw new Error("Correspondence not found.");
       }
