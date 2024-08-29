@@ -1,11 +1,13 @@
 // src/components/SalesContactReview.jsx
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLoaderData } from 'react-router-dom';
 
 const ContactSummary = () => {
   const { contactId } = useParams();
   const { salesContact, correspondence } = useLoaderData();
+
+console.log(salesContact, correspondence)
 
   return (
     <div className="sales-contact-review">
@@ -19,8 +21,8 @@ const ContactSummary = () => {
           <p><strong>Status:</strong> {salesContact.status}</p>
           
           <h3>Participants</h3>
-          <p><strong>Caller:</strong> {salesContact.participants.caller.username}</p>
-          <p><strong>Customer:</strong> {salesContact.participants.customer.name}</p>
+          <p><strong>Caller:</strong> {salesContact.participants.callere}</p>
+          <p><strong>Customer:</strong> {salesContact.participants.customer}</p>
         </>
       )}
 

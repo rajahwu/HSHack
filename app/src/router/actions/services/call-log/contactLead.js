@@ -36,9 +36,6 @@ export const action = async ({ request }) => {
       textNumber,
     });
 
-    // Wait before creating the correspondence
-    // await new Promise((resolve) => setTimeout(resolve, 300));
-
     // Create correspondence based on the sales contact
     const correspondence = await Correspondence.createFromSalesContact(salesContact);
     console.log("Correspondence created");
@@ -46,7 +43,6 @@ export const action = async ({ request }) => {
     // Link correspondence to sales contact
     await salesContact.linkCorrespondence(correspondence.id);
     console.log("Linked Correspondence", { salesContact, correspondence });
-
 
     // Construct the redirect link
     const contactViewLink = `${salesContact.type}/${salesContact.id}`;
@@ -57,6 +53,6 @@ export const action = async ({ request }) => {
   } catch (error) {
     console.error("Error in contact lead action:", error);
     // Optionally redirect to an error page or show a notification
-    return redirect("/error"); // or handle in another way
+    return redirect("/error"); 
   }
 };

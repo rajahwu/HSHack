@@ -18,7 +18,7 @@ export default function Footer() {
       mt="auto"
     >
       <Typography variant="body1" align="center">
-        &copy; {new Date().getFullYear()} HSChat. All rights reserved.
+        &copy; {new Date().getFullYear()} HSForce. All rights reserved.
       </Typography>
       <Typography variant="body2" align="center">
         <Link href="/privacy" color="inherit" underline="always">Privacy Policy</Link> |

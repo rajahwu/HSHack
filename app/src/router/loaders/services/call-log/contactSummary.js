@@ -13,8 +13,7 @@ export async function loader({ params }) {
         if (!salesContact) {
             throw new Error(`Sales contact with ID ${contactId} not found.`);
         }
-        console.log(salesContact)
-        const correspondence = await Correspondence.getCorrespondenceBySalesContact(salesContact.id);
+        const correspondence = await Correspondence.getCorrespondence(salesContact.correspondenceId);
         return { salesContact, correspondence };
     } catch (error) {
         console.error("Error loading sales contact or correspondence:", error);

@@ -22,7 +22,6 @@ export async function loader({ params }) {
     if (!salesContact) {
       throw new Error('Sales contact not found');
     }
-    console.log('contactView Loader: ', { salesContact });
     await salesContact.updateStatus(`${salesContact.type}ing`);
 
     const customer = await Customer.findById(salesContact.participants.customer);
@@ -36,7 +35,7 @@ export async function loader({ params }) {
 
     let correspondence;
     try {
-      correspondence = await Correspondence.getCorrespondenceBySalesContact(contactId);
+      correspondence = await Correspondence.getCorrespondence(salesContact.correspondenceId);
     } catch (error) {
       console.warn("Failed to get correspondence, using fallback:", error.message);
       correspondence = await Correspondence.createFromSalesContact(salesContact); // Generate fallback

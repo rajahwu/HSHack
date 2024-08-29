@@ -1,7 +1,6 @@
 import { TranscriberModel as genai } from "../../services/gemini";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore"; // Import necessary Firestore functions
 import { db } from "../../services/firebase";
-import { v4 as uuidv4 } from "uuid"; // Import the UUID library to generate unique IDs
 
 /**
  * Represents an AI-generated correspondence for a sales contact.
@@ -14,11 +13,13 @@ class Correspondence {
    * @param {string} params.id - Unique identifier.
    * @param {string} params.salesContactId - ID of the associated sales contact.
    * @param {Object} params.content - Generated content including script, summary, score, and outcome.
+   * @param {string} [params.fallbackId] - ID for fallback content.
    */
-  constructor({ id, salesContactId, content }) {
+  constructor({ id, salesContactId, content, fallbackId }) {
     this.id = id;
     this.salesContactId = salesContactId;
     this.content = content;
+    this.fallbackId = fallbackId; // Store the fallback ID, if provided
   }
 
   /**
@@ -29,7 +30,9 @@ class Correspondence {
    */
   static async createFromSalesContact(salesContact) {
     try {
+      // Throw error for testing
       throw Error('correspondence testing');
+
       const prompt = createGeminiPrompt(salesContact);
       const response = await genai.generateContent(prompt);
       const content = JSON.parse(response.text);
@@ -41,21 +44,13 @@ class Correspondence {
       // Fallback content based on sales contact type
       const fallbackContent = getFallbackContent(salesContact.type);
 
-      // Generate a unique ID for fallback content
-      const fallbackId = `fallback-${salesContact.type}-${uuidv4()}`;
-
-      // Save the fallback correspondence to the database
-      await Correspondence.createOrGetFallbackCorrespondence({
-        id: fallbackId,
+      // Create or get the fallback correspondence from Firestore
+      const fallbackCorrespondence = await Correspondence.createOrGetFallbackCorrespondence({
         salesContactId: salesContact.id,
         content: fallbackContent,
       });
 
-      return new Correspondence({
-        id: fallbackId,
-        salesContactId: salesContact.id,
-        content: fallbackContent,
-      });
+      return fallbackCorrespondence;
     }
   }
 
@@ -76,6 +71,7 @@ class Correspondence {
           id: data.id,
           salesContactId: data.salesContactId,
           content: data.content,
+          fallbackId: data.fallbackId,
         });
       } else {
         throw new Error("Correspondence not found.");
@@ -103,6 +99,7 @@ class Correspondence {
           id: data.id,
           salesContactId,
           content: data.content,
+          fallbackId: data.fallbackId,
         });
       } else {
         throw new Error("Correspondence not found.");
@@ -118,10 +115,11 @@ class Correspondence {
    * @param {Object} params - The parameters for the fallback Correspondence.
    * @returns {Promise<Correspondence>} The fetched or created Correspondence instance.
    */
-  static async createOrGetFallbackCorrespondence({ id, salesContactId, content }) {
+  static async createOrGetFallbackCorrespondence({ salesContactId, content }) {
     try {
-      // Check if the fallback correspondence already exists
-      const existingCorrespondence = await this.getCorrespondence(id);
+      // Attempt to find an existing correspondence
+      const fallbackId = `fallback-${salesContactId}`;
+      const existingCorrespondence = await this.getCorrespondence(fallbackId);
       if (existingCorrespondence) {
         return existingCorrespondence;
       }
@@ -130,14 +128,15 @@ class Correspondence {
     }
 
     // Create a new fallback correspondence if it does not exist
-    const fallbackDocRef = doc(db, "correspondences", id);
-    await setDoc(fallbackDocRef, {
-      id,
+    const docRef = await addDoc(collection(db, "correspondences"), {
       salesContactId,
       content,
+      fallbackId: `fallback-${salesContactId}`, // Save the fallback ID under a separate field
     });
 
-    return new Correspondence({ id, salesContactId, content });
+    // Fetch the created document's ID
+    const fallbackId = docRef.id;
+    return new Correspondence({ id: fallbackId, salesContactId, content });
   }
 }
 

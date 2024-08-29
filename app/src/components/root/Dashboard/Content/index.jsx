@@ -1,9 +1,9 @@
 import { Box, Button, Card, CardContent, Grid, Typography } from '@mui/material';
 import React from 'react';
 import { Form } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../../context/AuthContext';
 
-const Dashboard = () => {
+const DashboardContent = () => {
   const { user } = useAuth();
   console.log(user);
   const leads = [];
@@ -70,4 +70,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardContent;

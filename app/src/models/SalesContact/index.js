@@ -6,27 +6,29 @@ import { db } from "../../services/firebase";
  * @class
  */
 class SalesContact {
-  /**
+ 
+/**
    * Creates a new SalesContact instance.
    * @param {Object} params - The parameters for creating a SalesContact.
    * @param {string} params.id - Unique identifier.
    * @param {Date} params.date - The date of the sales contact.
    * @param {number} params.duration - The duration of the sales contact in seconds.
    * @param {Object} params.participants - The participants involved in the sales contact.
-   * @param {string} params.correspondenceId = The correspondence betweent the caller and customer.
+   * @param {string} [params.correspondenceId] - The correspondence ID between the caller and customer.
    * @param {string} [params.transcriptionId] - (optional) The transcription ID associated with the sales contact.
    * @param {string} [params.status='pending'] - (optional) The status of the sales contact.
    * @param {string} [params.type='call'] - (optional) The type of the sales contact.
    */
-  constructor({ id, date, duration, participants, transcriptionId = null, status = 'pending', type = 'call' }) {
-    this.id = id;
-    this.date = date;
-    this.type = type;
-    this.duration = duration || SalesContact.generateRandomValue(type);
-    this.participants = participants;
-    this.transcriptionId = transcriptionId;
-    this.status = status;
-  }
+constructor({ id, date, duration, participants, correspondenceId = null, transcriptionId = null, status = 'pending', type = 'call' }) {
+  this.id = id;
+  this.date = date;
+  this.type = type;
+  this.duration = duration || SalesContact.generateRandomValue(type);
+  this.participants = participants;
+  this.correspondenceId = correspondenceId;
+  this.transcriptionId = transcriptionId;
+  this.status = status;
+}
 
     /**
    * Generates a random value based on the contact type.
@@ -102,27 +104,22 @@ class SalesContact {
    * @returns {Promise<void>}
    */
 
-   /**
+    /**
    * Links a correspondence to the sales contact and updates Firestore.
    * @param {string} correspondenceId - The correspondence ID to link.
    * @returns {Promise<void>}
    */
   async linkCorrespondence(correspondenceId) {
     try {
-      // Correctly reference the Firestore document using 'db'
       const salesContactRef = doc(db, "salesContacts", this.id);
-  
-      // Update the correspondenceId field in the Firestore document
       await setDoc(salesContactRef, { correspondenceId: correspondenceId }, { merge: true });
-      
-      // Update the instance's field
       this.correspondenceId = correspondenceId; 
       console.log(`Correspondence ID ${correspondenceId} linked to SalesContact ${this.id}`);
     } catch (error) {
       console.error("Failed to link correspondence:", error);
       throw error;
     }
-  } 
+  }
 
   /**
    * Updates the status of the sales contact and updates Firestore.
@@ -165,8 +162,7 @@ class SalesContact {
   static async findById(id) {
     const salesContactDoc = await getDoc(doc(db, "salesContacts", id));
     if (salesContactDoc.exists()) {
-
-
+      // Ensure all fields, including correspondenceId, are correctly assigned
       return new SalesContact(salesContactDoc.data());
     } else {
       return null; // or throw an error if preferred
