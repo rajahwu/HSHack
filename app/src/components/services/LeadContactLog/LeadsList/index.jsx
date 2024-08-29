@@ -20,7 +20,7 @@ import { Form, NavLink, useLoaderData, Outlet } from "react-router-dom";
 const LeadsList = () => {
   const leads = useLoaderData();
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(2);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -97,7 +97,7 @@ const LeadsList = () => {
           </TableBody>
         </Table>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[2, 3, 5]}
           component="div"
           count={leads.length}
           rowsPerPage={rowsPerPage}

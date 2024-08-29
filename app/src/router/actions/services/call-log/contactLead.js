@@ -1,6 +1,6 @@
 import { redirect } from "react-router-dom";
 import { SalesContact } from "../../../../models/SalesContact";
-import { Correspondence } from "../../../../models/Correspondence";
+import Correspondence from "../../../../models/Correspondence";
 
 export const action = async ({ request }) => {
   try {

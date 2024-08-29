@@ -147,8 +147,76 @@ class Correspondence {
  * @returns {string} The generated prompt for the Gemini API.
  */
 function createGeminiPrompt(salesContact) {
-  // Existing prompt generation logic
-  // ...
+  const { type, duration, participants } = salesContact;
+  const maxDuration = 90; // 1.5 minutes in seconds
+
+  // Calculate approximate lengths based on type
+  const length = Math.min(duration, maxDuration);
+  let prompt = '';
+
+  switch (type) {
+    case 'call':
+      const callLines = Math.min(Math.floor(length / 60), 10); // Lines based on duration
+      const callScript = generateCallScript(callLines);
+      prompt = `Generate a sales call transcript with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
+        Duration: ${duration} seconds
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
+
+        Use the following format for the response:
+        {
+          "script": {
+            "caller": ${JSON.stringify(callScript.caller)},
+            "customer": ${JSON.stringify(callScript.customer)}
+          },
+          "summary": "Provide a summary based on the script.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }`;
+      break;
+
+    case 'email':
+      const emailChainLength = Math.min(Math.floor(length / 10), 6); // Chain length based on duration
+      const emailChain = generateEmailChain(emailChainLength);
+      prompt = `Generate an email chain with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
+        Duration: ${duration} seconds
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
+
+        Use the following format for the response:
+        {
+          "chain": ${JSON.stringify(emailChain)},
+          "summary": "Provide a summary based on the chain.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }`;
+      break;
+
+    case 'text':
+      const textChainLength = Math.min(Math.floor(length / 5), 20); // Message chain length based on duration
+      const textChain = generateTextChain(textChainLength);
+      prompt = `Generate a text message chain with the following details:
+        ID: ${salesContact.id}
+        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
+        Duration: ${duration} seconds
+        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
+
+        Use the following format for the response:
+        {
+          "chain": ${JSON.stringify(textChain)},
+          "summary": "Provide a summary based on the chain.",
+          "score": "Provide a score (0-100).",
+          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
+        }`;
+      break;
+
+    default:
+      throw new Error('Unsupported contact type');
+  }
+
+  return prompt;
 }
 
 /**
@@ -178,29 +246,28 @@ function getFallbackContent(type) {
     case 'email':
       return {
         chain: [
-          "Subject: Check out our new product!\n\nHi there, check out our new product that we think you’ll love!",
-          "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!",
+          { sender: "Caller", content: "Hello, would you be interested in our product?" },
+          { sender: "Customer", content: "Thank you, but not at this time." }
         ],
-        summary: "The caller sent two emails promoting a new product and a sale.",
-        score: 50,
+        summary: "The email exchange was brief, with the customer declining the offer.",
+        score: 40,
         outcome: "failure",
       };
 
     case 'text':
       return {
         chain: [
-          "Hi! Just checking in.",
-          "Are you interested in our product?",
-          "We have a special offer for you!",
+          { sender: "Caller", message: "Hi, are you available for a quick chat?" },
+          { sender: "Customer", message: "Sorry, I'm busy right now." },
         ],
-        summary: "The caller checked in and offered a special deal on their product.",
+        summary: "A short text conversation where the customer was not available.",
         score: 60,
         outcome: "failure",
       };
 
     default:
-      throw new Error("Unsupported contact type for fallback content");
+      throw new Error('Unsupported type for fallback');
   }
 }
 
-export { Correspondence };
+export default Correspondence;

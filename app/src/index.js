@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Home, Profile, Settings, Error } from "./components/root";
+import Chat from "./components/root/Chat";
 import Dashboard, { DashboardContent } from "./components/root/Dashboard";
 import CallLog, { CallLogLanding, AddLead, ContactHistory, ContactView, ContactSummary, LeadsList } from "./components/services/LeadContactLog"
 import { AuthProvider } from "./context/AuthContext";
@@ -17,8 +18,8 @@ import { loader as contactViewLoader } from "./router/loaders/services/call-log/
 import { loader as contactHistoryLoader  } from "./router/loaders/services/call-log/contactHistory";
 import { loader as contactSummaryLoader } from "./router/loaders/services/call-log/contactSummary";
 
-import './services/assembly_ai';
 import './services/firebase';
+import './services/assembly_ai';
 import './services/gemini';
 
 const domNode = document.getElementById("root");
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
                             { path: "profile", element: <Profile /> },
                         ],
                     },
+                    { path: "chat", element: <Chat /> },
                     { path: "leads/new", element: <AddLead />, action: addLeadAction },
                     {
                         path: "call-log", element: <CallLog />,
@@ -53,7 +55,6 @@ const router = createBrowserRouter([
                             { index: true, element: <CallLogLanding /> },
                             { 
                                 path: ":contentType/:contactId/review",
-                                element: <div>Review</div>, 
                                 element: <ContactSummary />, 
                                 loader: contactSummaryLoader 
                             },
@@ -64,9 +65,7 @@ const router = createBrowserRouter([
                                 action: contactLeadAction,
                                 children: [
                                     { path: "add", element: <AddLead /> },
-                                    { path: "call/:contactId", element: <ContactView />, loader: contactViewLoader },
-                                    { path: "email/:contactId", element: <ContactView />, loader: contactViewLoader },
-                                    { path: "text/:contactId", element: <ContactView />, loader: contactViewLoader }
+                                    { path: ":contentType/:contactId", element: <ContactView />, loader: contactViewLoader },
                                 ]
                             },
                             {

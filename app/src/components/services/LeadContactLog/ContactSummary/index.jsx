@@ -7,7 +7,7 @@ const ContactSummary = () => {
 
   return (
     <div className="sales-contact-review">
-      <h2>Review Sales Contact</h2>
+      <h2>Sales Contact Summary</h2>
       {salesContact && (
         <>
           <h3>Contact Details</h3>

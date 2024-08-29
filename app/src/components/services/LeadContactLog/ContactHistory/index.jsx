@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, Typography } from '@mui/material';
+import { useLoaderData, Link } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, Typography, Button } from '@mui/material';
 import * as dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useAuth } from '../../../../context/AuthContext';
 
 dayjs.extend(relativeTime);
 
 const ContactHistory = () => {
+  const { user } = useAuth();
   const { contactHistory } = useLoaderData();
   const [contacts, setContacts] = useState(contactHistory || []);
   const [page, setPage] = useState(0);
@@ -40,6 +42,7 @@ const ContactHistory = () => {
               <TableCell>Date</TableCell>
               <TableCell>Duration</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -49,6 +52,16 @@ const ContactHistory = () => {
                 <TableCell>{dayjs.unix(contact.date.seconds).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
                 <TableCell>{contact.duration} minutes</TableCell>
                 <TableCell>{contact.status}</TableCell>
+                <TableCell>
+                  {/* View Summary Button */}
+                  <Button 
+                    variant="outlined" 
+                    component={Link} 
+                    to={`/${user.displayName}/call-log/${contact.type}/${contact.id}/review`}
+                  >
+                    View Summary
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

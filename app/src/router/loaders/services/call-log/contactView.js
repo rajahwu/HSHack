@@ -2,7 +2,7 @@ import { redirect } from "react-router-dom";
 import { auth } from '../../../../services/firebase';
 import { SalesContact } from '../../../../models/SalesContact';
 import Customer from '../../../../models/Customer';
-import { Correspondence } from '../../../../models/Correspondence'; // Make sure to import Correspondence if used
+import Correspondence from '../../../../models/Correspondence'; // Make sure to import Correspondence if used
 
 export async function loader({ params }) {
   const user = auth.currentUser;

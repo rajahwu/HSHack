@@ -12,7 +12,7 @@ const LeadContactLogServicePage = () => {
   return (
     <Page>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, flexBasis: '25%' }}>
-        <SideBar title="Calls" links={LeadContactLogServicePageLinks} />
+        <SideBar title="Call Log" links={LeadContactLogServicePageLinks} />
       </Box>
       <Paper sx={{
         display: 'flex',
