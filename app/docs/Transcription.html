@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: User</title>
+    <title>JSDoc: Class: Transcription</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: User</h1>
+    <h1 class="page-title">Class: Transcription</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>User<span class="signature">(id, displayName, email, photoURL)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Transcription<span class="signature">(id, audioUrl, speakerLabels)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="User"><span class="type-signature"></span>new User<span class="signature">(id, displayName, email, photoURL)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Transcription"><span class="type-signature"></span>new Transcription<span class="signature">(id, audioUrl, speakerLabels)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    Represents a user
+    Represents a transcription job
 </div>
 
 
@@ -108,7 +108,7 @@
 
         <tr>
             
-                <td class="name"><code>displayName</code></td>
+                <td class="name"><code>audioUrl</code></td>
             
 
             <td class="type">
@@ -124,20 +124,20 @@
 
             
 
-            <td class="description last">User display name.</td>
+            <td class="description last">URL or Base64 of the audio file.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>email</code></td>
+                <td class="name"><code>speakerLabels</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -147,30 +147,7 @@
 
             
 
-            <td class="description last">User email.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>photoURL</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">User photo URL.</td>
+            <td class="description last">Flag to enable speaker labels.</td>
         </tr>
 
     
@@ -211,7 +188,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="models_User_index.js.html">models/User/index.js</a>, <a href="models_User_index.js.html#line18">line 18</a>
+        <a href="models_Transcription_index.js.html">models/Transcription/index.js</a>, <a href="models_Transcription_index.js.html#line3">line 3</a>
     </li></ul></dd>
     
 

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/Customer/index.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/Customer/index.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import axios from 'axios';
+import { addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { db } from '../../services/firebase';
+
+/**
+ * Represents a customer.
+ * @class
+ */
+class Customer {
+  constructor({ id, name, photoURL, email, phoneNumber, textNumber = '', assignedTo = null }) {
+    this.id = id;
+    this.name = name;
+    this.photoURL = photoURL;
+    this.email = email;
+    this.phoneNumber = phoneNumber;
+    this.textNumber = textNumber;
+    this.assignedTo = assignedTo;
+  }
+
+  static create({ id, name, email, photoURL, phoneNumber, textNumber = '', assignedTo = null }) {
+    return new Customer({ id, name, email, photoURL, phoneNumber, textNumber, assignedTo });
+  }
+
+  static async autoCreate({ assignedTo = null } = {}) {
+    try {
+      const response = await axios.get('https://randomuser.me/api/');
+      const data = response.data.results[0];
+      const timestamp = new Date();
+
+      const customerRef = collection(db, 'customers');
+      const docRef = await addDoc(customerRef, {
+        name: `${data.name.first} ${data.name.last}`,
+        photoURL: data.picture.large,
+        email: data.email,
+        phoneNumber: data.phone,
+        textNumber: data.cell,
+        assignedTo,
+        timestamp,
+      });
+
+      return new Customer({
+        id: docRef.id,
+        name: `${data.name.first} ${data.name.last}`,
+        photoURL: data.picture.large,
+        email: data.email,
+        phoneNumber: data.phone,
+        textNumber: data.cell,
+        assignedTo,
+      });
+    } catch (error) {
+      console.error('Error creating customer: ', error);
+      throw new Error('Error creating customer');
+    }
+  }
+
+  updateDetails({ name, email, photoURL, phoneNumber, textNumber = '' }) {
+    this.name = name;
+    this.email = email;
+    this.photoURL = photoURL;
+    this.phoneNumber = phoneNumber;
+    this.textNumber = textNumber;
+  }
+
+  async assignUser(userId) {
+    try {
+      const customerRef = doc(db, 'customers', this.id);
+      await updateDoc(customerRef, {
+        assignedTo: userId
+      });
+      this.assignedTo = userId;
+    } catch (error) {
+      console.error('Error assigning user: ', error);
+      throw new Error('Error assigning user');
+    }
+  }
+
+  static async getCustomersAssignedTo(userId) {
+    try {
+      const q = query(collection(db, 'customers'), where('assignedTo', '==', userId));
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => new Customer({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error fetching assigned customers: ', error);
+      throw new Error('Error fetching assigned customers');
+    }
+  }
+
+  /**
+   * Finds a customer by ID.
+   * @param {string} customerId - The ID of the customer.
+   * @returns {Promise&lt;Customer|null>} A promise that resolves to the Customer instance or null if not found.
+   */
+  static async findById(customerId) {
+    try {
+      const customerDoc = await getDoc(doc(db, 'customers', customerId));
+      if (customerDoc.exists()) {
+        return new Customer({ id: customerDoc.id, ...customerDoc.data() });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding customer by ID: ', error);
+      throw new Error('Error finding customer by ID');
+    }
+  }
+
+  /**
+   * Finds a customer by email.
+   * @param {string} email - The email of the customer.
+   * @returns {Promise&lt;Customer|null>} A promise that resolves to the Customer instance or null if not found.
+   */
+  static async findByEmail(email) {
+    try {
+      const q = query(collection(db, 'customers'), where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const docData = querySnapshot.docs[0].data();
+        return new Customer({ id: querySnapshot.docs[0].id, ...docData });
+      }
+      return null;
+    } catch (error) {
+      console.error('Error finding customer by email: ', error);
+      throw new Error('Error finding customer by email');
+    }
+  }
+
+  /**
+   * Retrieves all customers.
+   * @returns {Promise&lt;Customer[]>} A promise that resolves to an array of Customer instances.
+   */
+  static async findAll() {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'customers'));
+      return querySnapshot.docs.map(doc => new Customer({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+      console.error('Error retrieving all customers: ', error);
+      throw new Error('Error retrieving all customers');
+    }
+  }
+}
+
+export default Customer;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AudioFile.html">AudioFile</a></li><li><a href="Correspondence.html">Correspondence</a></li><li><a href="Customer.html">Customer</a></li><li><a href="SalesContact.html">SalesContact</a></li><li><a href="Transcription.html">Transcription</a></li><li><a href="User.html">User</a></li><li><a href="VideoFile.html">VideoFile</a></li></ul><h3>Global</h3><ul><li><a href="global.html#AddLead">AddLead</a></li><li><a href="global.html#Footer">Footer</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Main">Main</a></li><li><a href="global.html#Page">Page</a></li><li><a href="global.html#Register">Register</a></li><li><a href="global.html#SalesBot">SalesBot</a></li><li><a href="global.html#SideBar">SideBar</a></li><li><a href="global.html#SignIn">SignIn</a></li><li><a href="global.html#SignOut">SignOut</a></li><li><a href="global.html#createGeminiPrompt">createGeminiPrompt</a></li><li><a href="global.html#generateCallScript">generateCallScript</a></li><li><a href="global.html#generateEmailChain">generateEmailChain</a></li><li><a href="global.html#generateTextChain">generateTextChain</a></li><li><a href="global.html#getFallbackContent">getFallbackContent</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Thu Aug 29 2024 00:32:02 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

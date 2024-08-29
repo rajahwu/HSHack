@@ -1,13 +1,13 @@
 import { redirect } from "react-router-dom";
 import { auth } from '../../../../services/firebase';
 import { SalesContact } from '../../../../models/SalesContact';
-import Customer  from '../../../../models/Customer';
+import Customer from '../../../../models/Customer';
+import { Correspondence } from '../../../../models/Correspondence'; // Make sure to import Correspondence if used
 
 export async function loader({ params }) {
   const user = auth.currentUser;
 
   if (!user) {
-    // Redirect if no user is authenticated
     return redirect('/login');
   }
 
@@ -19,25 +19,40 @@ export async function loader({ params }) {
 
   try {
     const salesContact = await SalesContact.findById(contactId);
-
     if (!salesContact) {
       throw new Error('Sales contact not found');
     }
+    console.log('contactView Loader: ', { salesContact });
+    await salesContact.updateStatus(`${salesContact.type}ing`);
 
     const customer = await Customer.findById(salesContact.participants.customer);
-
     if (!customer) {
       throw new Error('Customer not found');
     }
 
-    // Add the customer and caller objects directly to salesContact
-    salesContact.customer = customer;
-    salesContact.caller = { username: user.displayName, id: user.uid };
+    salesContact.participants.customer = customer;
+    salesContact.participants.caller = { username: user.displayName, id: user.uid };
+    await salesContact.updateStatus("corresponding");
 
-    return { salesContact }; // Return the sales contact data
+    let correspondence;
+    try {
+      correspondence = await Correspondence.getCorrespondenceBySalesContact(contactId);
+    } catch (error) {
+      console.warn("Failed to get correspondence, using fallback:", error.message);
+      correspondence = await Correspondence.createFromSalesContact(salesContact); // Generate fallback
+    }
+
+    // salesContact.correspondence = correspondence;
+    await salesContact.updateStatus("Ending");
+     // Wait before creating the correspondence
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await salesContact.updateStatus("complete");
+
+
+    return { salesContact };
 
   } catch (error) {
     console.error('Failed to find sales contact:', error.message);
-    return redirect('/error'); // Redirect to an error page or a fallback route
+    return redirect('/error');
   }
 }

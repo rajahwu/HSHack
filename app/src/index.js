@@ -3,15 +3,17 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
-import { Dashboard, Home, Profile, Settings } from "./components/root";
-import CallLog, { AddLead, ContactHistory, ContactView, LeadsList } from "./components/services/LeadContactLog"
+import { Dashboard, Home, Profile, Settings, Error } from "./components/root";
+import CallLog, { CallLogLanding, AddLead, ContactHistory, ContactView, ContactSummary, LeadsList } from "./components/services/LeadContactLog"
 import { AuthProvider } from "./context/AuthContext";
 import { loginAction, registerAction, signOutAction } from "./router/actions/auth";
 
 import { action as addLeadAction } from "./router/actions/services/call-log/addLead";
 import { action as contactLeadAction } from "./router/actions/services/call-log/contactLead";
+import { loader as contactHistoryLoader  } from "./router/loaders/services/call-log/contactHistory";
 import { loader as callViewLoader } from "./router/loaders/services/call-log/contactView";
 import { loader as leadListLoader } from "./router/loaders/services/call-log/leadList";
+import { loader as contactSummaryLoader } from "./router/loaders/services/call-log/contactSummary";
 
 import './services/assembly_ai';
 import './services/firebase';
@@ -24,8 +26,10 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <App />,
+        errorElement: <Error />,
         children: [
             { index: true, element: <Home /> },
+            { path: "/error", element: <Error /> },
             { path: "register", element: <Register />, action: registerAction },
             { path: "login", element: <Login />, action: loginAction },
             {
@@ -38,8 +42,14 @@ const router = createBrowserRouter([
                     {
                         path: "call-log", element: <CallLog />,
                         children: [
-                            { index: true, path: "new-contact", element: <ContactView /> },
-                            {
+                            { index: true, element: <CallLogLanding /> },
+                            { 
+                                path: ":contentType/:contactId/review",
+                                element: <div>Review</div>, 
+                                element: <ContactSummary />, 
+                                loader: contactSummaryLoader 
+                            },
+                                {
                                 path: "leads",
                                 element: <LeadsList />,
                                 loader: leadListLoader,
@@ -52,7 +62,10 @@ const router = createBrowserRouter([
                                 ]
                             },
                             {
-                                path: "history", element: <ContactHistory />, children: [
+                                path: "history", 
+                                element: <ContactHistory />, 
+                                loader: contactHistoryLoader, 
+                                children: [
                                     { path: ":callId", element: <ContactView /> }
                                 ]
                             },

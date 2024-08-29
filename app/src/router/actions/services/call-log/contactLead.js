@@ -3,42 +3,60 @@ import { SalesContact } from "../../../../models/SalesContact";
 import { Correspondence } from "../../../../models/Correspondence";
 
 export const action = async ({ request }) => {
-  const formData = await request.formData();
-  const phoneNumber = formData.get("phoneNumber");
-  const email = formData.get("email");
-  const textNumber = formData.get("textNumber");
-  const leadData = {
-    userId: formData.get("userId"),
-    leadId: formData.get("leadId"),
-    phoneNumber,
-    email,
-    textNumber,
-  };
+  try {
+    const formData = await request.formData();
+    const phoneNumber = formData.get("phoneNumber");
+    const email = formData.get("email");
+    const textNumber = formData.get("textNumber");
 
-  const type = phoneNumber ? "call" : email ? "email" : textNumber ? "text" : "unknown";
-  // Perform any necessary logic with leadData here
-  // You could save the data, initiate a call, send an email, etc.
-  const salesContact = await SalesContact.create({
-    date: new Date(),
-    type: type,
-    duration: 0,
-    participants: {
-      caller: leadData.userId,
-      customer: leadData.leadId
-    },
-    phoneNumber: leadData.phoneNumber,
-    email: leadData.email,
-    textNumber: leadData.textNumber,
-  });
+    const leadData = {
+      userId: formData.get("userId"),
+      leadId: formData.get("leadId"),
+      phoneNumber,
+      email,
+      textNumber,
+    };
 
-  console.log(salesContact)
-  
-   // Create Correspondence
-  const correspondence = await Correspondence.createFromSalesContact(salesContact);
-  console.log(correspondence)
+    // Determine the type of communication
+    const type = phoneNumber ? "call" : email ? "email" : textNumber ? "text" : "unknown";
 
-  const contactViewLink = `${salesContact.type}/${salesContact.id}`;
+    // Create a new SalesContact
+    const salesContact = await SalesContact.create({
+      date: new Date(),
+      type,
+      duration: 0,
+      participants: {
+        caller: leadData.userId,
+        customer: leadData.leadId,
+      },
+      status: "pending",
+      correspondenceId: null,
+      phoneNumber,
+      email,
+      textNumber,
+    });
 
-  // Redirect to CallView with the lead data as state or URL parameters
-  return redirect(contactViewLink); // Make sure the path matches your routing setup
+    // Wait before creating the correspondence
+    // await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Create correspondence based on the sales contact
+    const correspondence = await Correspondence.createFromSalesContact(salesContact);
+    console.log("Correspondence created");
+
+    // Link correspondence to sales contact
+    await salesContact.linkCorrespondence(correspondence.id);
+    console.log("Linked Correspondence", { salesContact, correspondence });
+
+
+    // Construct the redirect link
+    const contactViewLink = `${salesContact.type}/${salesContact.id}`;
+
+    // Redirect to the contact view page
+    return redirect(contactViewLink);
+
+  } catch (error) {
+    console.error("Error in contact lead action:", error);
+    // Optionally redirect to an error page or show a notification
+    return redirect("/error"); // or handle in another way
+  }
 };

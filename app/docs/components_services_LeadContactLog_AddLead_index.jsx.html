@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/layouts/Footer/index.jsx</title>
+    <title>JSDoc: Source: components/services/LeadContactLog/AddLead/index.jsx</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/layouts/Footer/index.jsx</h1>
+    <h1 class="page-title">Source: components/services/LeadContactLog/AddLead/index.jsx</h1>
 
     
 
@@ -26,36 +26,56 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// components/layouts/Footer.jsx
-import { Box, Link, Typography } from '@mui/material';
+            <pre class="prettyprint source linenums"><code>import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import React from 'react';
+import { Form } from 'react-router-dom';
 
 /**
-  * Footer component displays recourse and contact links
-  *
-  * @returns {JSX.Element} The rendered Footer component
-  */
-export default function Footer() {
+ * Component to add a new lead.
+ * @component
+ */
+const AddLead = () => {
   return (
-    &lt;Box
-      component="footer"
-      bgcolor="primary.main"
-      color="primary.contrastText"
-      py={3}
-      px={2}
-      mt="auto"
-    >
-      &lt;Typography variant="body1" align="center">
-        &amp;copy; {new Date().getFullYear()} HSChat. All rights reserved.
-      &lt;/Typography>
-      &lt;Typography variant="body2" align="center">
-        &lt;Link href="/privacy" color="inherit" underline="always">Privacy Policy&lt;/Link> |
-        &lt;Link href="/terms" color="inherit" underline="always" sx={{ mx: 1 }}>Terms of Service&lt;/Link>
-        &lt;Link href="/contact" color="inherit" underline="always">| Contact Us&lt;/Link>
-      &lt;/Typography>
-    &lt;/Box>
+    &lt;Container component="main" maxWidth="xs">
+      &lt;Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        &lt;Typography component="h2" variant="h5">
+          Request Leads
+        &lt;/Typography>
+        &lt;Form method="post" style={{ width: '100%' }}> {/* Ensure method is POST to trigger action */}
+          &lt;TextField
+            margin="normal"
+            required
+            fullWidth
+            id="leadCount"
+            label="Number of Leads"
+            name="leadCount"
+            type="number"
+            InputProps={{ inputProps: { min: 1 } }}
+            autoFocus
+          />
+          &lt;Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Find
+          &lt;/Button>
+        &lt;/Form>
+      &lt;/Box>
+    &lt;/Container>
   );
-}</code></pre>
+};
+
+export default AddLead;
+</code></pre>
         </article>
     </section>
 

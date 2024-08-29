@@ -1,97 +1,70 @@
-import { Button, Card, CardActionArea, CardActions, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useLoaderData } from 'react-router-dom';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Paper, Typography } from '@mui/material';
 import * as dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import React, { useEffect, useState } from 'react';
-import { fetchCalls } from '../../../../data/call-log';
 
 dayjs.extend(relativeTime);
 
-const cardStyle = {
-  margin: "0.5em",
-  borderRadius: "5%",
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
-};
-
-const cardMediaStyle = {
-  borderRadius: "50%",
-  width: 50,
-  height: 50,
-  marginLeft: "0.5em",
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  backgroundColor: 'white',
-};
-
-const cardActionAreaStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "lightblue",
-  borderRadius: "5% 5% 0 0",
-  marginLeft: "auto",
-};
-
-const CallsMadeList = () => {
-  const [calls, setCalls] = useState([]);
+const ContactHistory = () => {
+  const { contactHistory } = useLoaderData();
+  const [contacts, setContacts] = useState(contactHistory || []);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    const fetchCallsData = async () => {
-      try {
-        const response = await fetchCalls();
-        setCalls(response);
-      } catch (error) {
-        console.error('Error fetching calls:', error);
-      }
-    };
+    setContacts(contactHistory);
+  }, [contactHistory]);
 
-    fetchCallsData();
-  }, []);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const paginatedContacts = contacts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <div>
-      <h2>Call History</h2>
-      <Grid container spacing={2}>
-        {calls && calls.map(call => (
-          <Grid item xs={12} sm={6} key={call.id}>
-            <Card sx={cardStyle}>
-              <CardActionArea sx={cardActionAreaStyle}>
-                <CardMedia
-                  sx={cardMediaStyle}
-                  component="div"
-                >
-                  <Typography variant="h6">
-                    {call.score || "N/A"}
-                  </Typography>
-                </CardMedia>
-                <CardContent>
-                  <Typography>
-                    {dayjs(call.date).fromNow()}
-                  </Typography>
-                  <Typography>
-                    {call.duration} minutes
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions sx={{ display: 'flex', justifyContent: 'center' }}>
-                {call.recordingUrl ? (
-                  <Button component='a' href={call.recordingUrl} target="_blank" rel="noopener noreferrer">
-                    View Call Summary
-                  </Button>
-                ) : (
-                  <Button>
-                    View Feedback
-                  </Button>
-                )}
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <Typography variant="h4" gutterBottom>
+        Call History
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Type</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Duration</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {paginatedContacts.map((contact) => (
+              <TableRow key={contact.id}>
+                <TableCell>{contact.type}</TableCell>
+                <TableCell>{dayjs.unix(contact.date.seconds).format('YYYY-MM-DD HH:mm:ss')}</TableCell>
+                <TableCell>{contact.duration} minutes</TableCell>
+                <TableCell>{contact.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25]}
+          component="div"
+          count={contacts.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </TableContainer>
     </div>
   );
 };
 
-export default CallsMadeList;
+export default ContactHistory;

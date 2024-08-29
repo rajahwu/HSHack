@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: components/layouts/Footer/index.jsx</title>
+    <title>JSDoc: Source: models/VideoFile/index.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: components/layouts/Footer/index.jsx</h1>
+    <h1 class="page-title">Source: models/VideoFile/index.js</h1>
 
     
 
@@ -26,36 +26,39 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>// components/layouts/Footer.jsx
-import { Box, Link, Typography } from '@mui/material';
-import React from 'react';
-
-/**
-  * Footer component displays recourse and contact links
-  *
-  * @returns {JSX.Element} The rendered Footer component
-  */
-export default function Footer() {
-  return (
-    &lt;Box
-      component="footer"
-      bgcolor="primary.main"
-      color="primary.contrastText"
-      py={3}
-      px={2}
-      mt="auto"
-    >
-      &lt;Typography variant="body1" align="center">
-        &amp;copy; {new Date().getFullYear()} HSChat. All rights reserved.
-      &lt;/Typography>
-      &lt;Typography variant="body2" align="center">
-        &lt;Link href="/privacy" color="inherit" underline="always">Privacy Policy&lt;/Link> |
-        &lt;Link href="/terms" color="inherit" underline="always" sx={{ mx: 1 }}>Terms of Service&lt;/Link>
-        &lt;Link href="/contact" color="inherit" underline="always">| Contact Us&lt;/Link>
-      &lt;/Typography>
-    &lt;/Box>
-  );
-}</code></pre>
+            <pre class="prettyprint source linenums"><code>/**
+ * Represents a video recording
+ * @constructor
+ * @param {string} id - Unique identifier for the video recording.
+ * @param {string} salesCallId - ID of the associated sales call.
+ * @param {string} videoUrl - URL of the video recording.
+ * @param {string} [format='mp4'] - Format of the video recording.
+ * @param {number} [size] - Size of the video recording in bytes.
+ */
+class VideoFile {
+    constructor(id, salesCallId, videoUrl, format = 'mp4', size = null) {
+      this.id = id;
+      this.salesCallId = salesCallId;
+      this.videoUrl = videoUrl;
+      this.format = format;
+      this.size = size;
+    }
+  
+    // Method to update the video details
+    updateDetails(videoUrl, format, size) {
+      this.videoUrl = videoUrl;
+      this.format = format;
+      this.size = size;
+    }
+  
+    // Method to associate this video with a sales call
+    associateWithSalesCall(salesCallId) {
+      this.salesCallId = salesCallId;
+    }
+  }
+  
+  export { VideoFile };
+  </code></pre>
         </article>
     </section>
 

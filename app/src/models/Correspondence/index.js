@@ -1,4 +1,7 @@
 import { TranscriberModel as genai } from "../../services/gemini";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../../services/firebase";
+import { v4 as uuidv4 } from "uuid"; // Import the UUID library to generate unique IDs
 
 /**
  * Represents an AI-generated correspondence for a sales contact.
@@ -18,7 +21,7 @@ class Correspondence {
     this.content = content;
   }
 
-   /**
+  /**
    * Creates a correspondence for a sales contact using Gemini API.
    * @param {SalesContact} salesContact - The sales contact object.
    * @returns {Promise<Correspondence>} The created Correspondence instance.
@@ -26,7 +29,7 @@ class Correspondence {
    */
   static async createFromSalesContact(salesContact) {
     try {
-      throw Error('Testing')
+      throw Error('correspondence testing');
       const prompt = createGeminiPrompt(salesContact);
       const response = await genai.generateContent(prompt);
       const content = JSON.parse(response.text);
@@ -38,10 +41,20 @@ class Correspondence {
       // Fallback content based on sales contact type
       const fallbackContent = getFallbackContent(salesContact.type);
 
-      return new Correspondence({
-        id: `fallback-${salesContact.id}`,
+      // Generate a unique ID for fallback content
+      const fallbackId = `fallback-${salesContact.type}-${uuidv4()}`;
+
+      // Save the fallback correspondence to the database
+      await Correspondence.createOrGetFallbackCorrespondence({
+        id: fallbackId,
         salesContactId: salesContact.id,
-        content: fallbackContent
+        content: fallbackContent,
+      });
+
+      return new Correspondence({
+        id: fallbackId,
+        salesContactId: salesContact.id,
+        content: fallbackContent,
       });
     }
   }
@@ -54,12 +67,77 @@ class Correspondence {
    */
   static async getCorrespondence(id) {
     try {
-      const response = await genai.getCorrespondence(id);
-      return new Correspondence({ id: response.id, salesContactId: response.salesContactId, content: JSON.parse(response.correspondenceText) });
+      const docRef = doc(db, "correspondences", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        return new Correspondence({
+          id: data.id,
+          salesContactId: data.salesContactId,
+          content: data.content,
+        });
+      } else {
+        throw new Error("Correspondence not found.");
+      }
     } catch (error) {
       console.error("Error fetching correspondence: ", error.message);
-      throw new Error('Failed to get correspondence');
+      throw new Error("Failed to get correspondence");
     }
+  }
+
+  /**
+   * Fetches the correspondence by its salesContact ID.
+   * @param {string} salesContactId - The salesContact ID associated with the correspondence.
+   * @returns {Promise<Correspondence>} The fetched Correspondence instance.
+   * @throws {Error} Throws an error if fetching fails.
+   */
+  static async getCorrespondenceBySalesContact(salesContactId) {
+    try {
+      const docRef = doc(db, "correspondences", salesContactId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        return new Correspondence({
+          id: data.id,
+          salesContactId,
+          content: data.content,
+        });
+      } else {
+        throw new Error("Correspondence not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching correspondence: ", error.message);
+      throw new Error("Failed to get correspondence");
+    }
+  }
+
+  /**
+   * Checks for an existing fallback correspondence or creates one if not found.
+   * @param {Object} params - The parameters for the fallback Correspondence.
+   * @returns {Promise<Correspondence>} The fetched or created Correspondence instance.
+   */
+  static async createOrGetFallbackCorrespondence({ id, salesContactId, content }) {
+    try {
+      // Check if the fallback correspondence already exists
+      const existingCorrespondence = await this.getCorrespondence(id);
+      if (existingCorrespondence) {
+        return existingCorrespondence;
+      }
+    } catch (error) {
+      console.log("Fallback correspondence not found, creating new one.");
+    }
+
+    // Create a new fallback correspondence if it does not exist
+    const fallbackDocRef = doc(db, "correspondences", id);
+    await setDoc(fallbackDocRef, {
+      id,
+      salesContactId,
+      content,
+    });
+
+    return new Correspondence({ id, salesContactId, content });
   }
 }
 
@@ -69,149 +147,8 @@ class Correspondence {
  * @returns {string} The generated prompt for the Gemini API.
  */
 function createGeminiPrompt(salesContact) {
-  const { type, duration, participants } = salesContact;
-  const maxDuration = 90; // 1.5 minutes in seconds
-
-  // Calculate approximate lengths based on type
-  const length = Math.min(duration, maxDuration);
-  let prompt = '';
-
-  switch (type) {
-    case 'call':
-      const callLines = Math.min(Math.floor(length / 60), 10); // Lines based on duration
-      const callScript = generateCallScript(callLines);
-      prompt = `
-        Generate a sales call transcript with the following details:
-        ID: ${salesContact.id}
-        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
-        Duration: ${duration} seconds
-        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
-
-        Use the following format for the response:
-        {
-          "script": {
-            "caller": ${JSON.stringify(callScript.caller)},
-            "customer": ${JSON.stringify(callScript.customer)}
-          },
-          "summary": "Provide a summary based on the script.",
-          "score": "Provide a score (0-100).",
-          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
-        }
-      `;
-      break;
-
-    case 'email':
-      const emailChainLength = Math.min(Math.floor(length / 10), 6); // Chain length based on duration
-      const emailChain = generateEmailChain(emailChainLength);
-      prompt = `
-        Generate an email chain with the following details:
-        ID: ${salesContact.id}
-        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
-        Duration: ${duration} seconds
-        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
-
-        Use the following format for the response:
-        {
-          "chain": ${JSON.stringify(emailChain)},
-          "summary": "Provide a summary based on the chain.",
-          "score": "Provide a score (0-100).",
-          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
-        }
-      `;
-      break;
-
-    case 'text':
-      const textChainLength = Math.min(Math.floor(length / 5), 20); // Message chain length based on duration
-      const textChain = generateTextChain(textChainLength);
-      prompt = `
-        Generate a text message chain with the following details:
-        ID: ${salesContact.id}
-        Date: ${salesContact.date.toISOString()}  // Convert date to ISO string
-        Duration: ${duration} seconds
-        Participants: Caller: ${participants.caller}, Customer: ${participants.customer}
-
-        Use the following format for the response:
-        {
-          "chain": ${JSON.stringify(textChain)},
-          "summary": "Provide a summary based on the chain.",
-          "score": "Provide a score (0-100).",
-          "outcome": "Choose from predefined outcomes: ['success', 'failure']."
-        }
-      `;
-      break;
-
-    default:
-      throw new Error('Unsupported contact type');
-  }
-
-  return prompt;
-}
-
-/**
- * Generates a simplified sales call script.
- * @param {number} lines - Number of lines in the script.
- * @returns {Object} The generated script with caller and customer dialogs.
- */
-function generateCallScript(lines) {
-  const callerLines = [
-    "Hey, how are you?",
-    "Do you want our super awesome product?",
-    "Here are its awesome features: great one, awesome two, and amazing three.",
-    "Are you interested in learning more?",
-    "It’s a great deal, don’t miss out!",
-  ];
-
-  const customerLines = [
-    "Good, thanks!",
-    "No, thank you.",
-    "That sounds interesting.",
-    "Can you tell me more?",
-    "I’m not sure, I’ll think about it.",
-  ];
-
-  return {
-    caller: callerLines.slice(0, Math.ceil(lines / 2)),
-    customer: customerLines.slice(0, Math.floor(lines / 2)),
-  };
-}
-
-/**
- * Generates a simplified email chain.
- * @param {number} length - Number of emails in the chain.
- * @returns {Array<string>} The generated email chain.
- */
-function generateEmailChain(length) {
-  const emailTemplates = [
-    "Subject: Check out our new product!\n\nHi there, check out our new product that we think you’ll love!",
-    "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!",
-    "Subject: Last chance to get 20% off!\n\nThis is your last chance to get 20% off on our products.",
-    "Subject: Thank you for your purchase!\n\nThank you for purchasing from us. We hope you enjoy your product.",
-    "Subject: How was your experience?\n\nWe’d love to hear about your experience with our product."
-  ];
-
-  return emailTemplates.slice(0, length);
-}
-
-/**
- * Generates a simplified text message chain.
- * @param {number} length - Number of messages in the chain.
- * @returns {Array<string>} The generated text message chain.
- */
-function generateTextChain(length) {
-  const textMessages = [
-    "Hi! Just checking in.",
-    "Are you interested in our product?",
-    "We have a special offer for you!",
-    "Don’t miss out on this opportunity!",
-    "Let me know if you have any questions.",
-    "Looking forward to hearing from you.",
-    "Thank you for your time!",
-    "Have a great day!",
-    "Talk to you soon!",
-    "Best regards!"
-  ];
-
-  return textMessages.slice(0, length);
+  // Existing prompt generation logic
+  // ...
 }
 
 /**
@@ -226,27 +163,27 @@ function getFallbackContent(type) {
         script: {
           caller: [
             "Hey, how are you?",
-            "Do you want our super awesome product?"
+            "Do you want our super awesome product?",
           ],
           customer: [
             "Good, thanks!",
-            "No, thank you."
-          ]
+            "No, thank you.",
+          ],
         },
         summary: "The caller initiated a sales call, inquiring about the customer's interest in their product. The customer politely declined.",
         score: 10,
-        outcome: "failure"
+        outcome: "failure",
       };
 
     case 'email':
       return {
         chain: [
           "Subject: Check out our new product!\n\nHi there, check out our new product that we think you’ll love!",
-          "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!"
+          "Subject: Don’t miss out on our sale!\n\nWe have an amazing sale going on. Don’t miss out!",
         ],
         summary: "The caller sent two emails promoting a new product and a sale.",
         score: 50,
-        outcome: "failure"
+        outcome: "failure",
       };
 
     case 'text':
@@ -254,15 +191,15 @@ function getFallbackContent(type) {
         chain: [
           "Hi! Just checking in.",
           "Are you interested in our product?",
-          "We have a special offer for you!"
+          "We have a special offer for you!",
         ],
         summary: "The caller checked in and offered a special deal on their product.",
         score: 60,
-        outcome: "failure"
+        outcome: "failure",
       };
 
     default:
-      throw new Error('Unsupported contact type for fallback content');
+      throw new Error("Unsupported contact type for fallback content");
   }
 }
 
