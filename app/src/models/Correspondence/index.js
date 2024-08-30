@@ -1,5 +1,5 @@
 import { TranscriberModel as genai } from "../../services/gemini";
-import { doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore"; // Import necessary Firestore functions
+import { doc, getDoc, setDoc, addDoc, collection, getDocs } from "firebase/firestore"; // Import necessary Firestore functions
 import { db } from "../../services/firebase";
 
 /**
@@ -82,6 +82,35 @@ class Correspondence {
       throw new Error("Failed to get correspondence");
     }
   }
+
+  /**
+ * Fetches all correspondences from the Firestore collection.
+ * @returns {Promise<Correspondence[]>} An array of Correspondence instances.
+ * @throws {Error} Throws an error if fetching fails.
+ */
+static async getAllCorrespondences() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "correspondences"));
+    const correspondences = [];
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const correspondence = new Correspondence({
+        id: doc.id,
+        salesContactId: data.salesContactId,
+        content: data.content,
+        fallbackId: data.fallbackId,
+      });
+      correspondences.push(correspondence);
+    });
+
+    return correspondences;
+  } catch (error) {
+    console.error("Error fetching correspondences: ", error.message);
+    throw new Error("Failed to fetch all correspondences");
+  }
+}
+
 
   /**
    * Fetches the correspondence by its salesContact ID.

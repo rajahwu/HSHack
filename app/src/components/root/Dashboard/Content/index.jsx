@@ -29,33 +29,12 @@ const DashboardContent = () => {
   const { user } = useAuth();
   const { leads, contactHistory } = useLoaderData();
 
-  // Placeholder data with leadId associations
-  const placeholderScores = [
-    { name: 'Call 1', score: 85, type: 'call', leadId: 1 },
-    { name: 'Call 2', score: 90, type: 'call', leadId: 2 },
-    { name: 'Call 3', score: 75, type: 'email', leadId: 3 },
-    { name: 'Call 4', score: 88, type: 'text', leadId: 4 },
-  ];
-
-  const placeholderOutcomes = [
-    { name: 'Call 1', outcome: 'Success', type: 'call' },
-    { name: 'Call 2', outcome: 'Failure', type: 'call' },
-    { name: 'Call 3', outcome: 'Success', type: 'email' },
-    { name: 'Call 4', outcome: 'Success', type: 'text' },
-  ];
-
   // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(2);
 
-  // Combine scores and outcomes into a single array
-  const tableData = placeholderScores.map((score, index) => ({
-    ...score,
-    outcome: placeholderOutcomes[index].outcome,
-  }));
-
   // Handle pagination
-  const paginatedData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedData = contactHistory.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -145,38 +124,34 @@ const DashboardContent = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {paginatedData.map((item) => {
-                        const randIdx = Math.floor(Math.random() * (leads.length - 1));
-                        const lead = leads[randIdx];
-                        return (
-                          <TableRow key={item.name}>
-                            <TableCell>
-                              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Avatar alt={lead.name} src={lead.photoURL} sx={{ marginRight: '1em' }} />
-                                <Typography>{lead ? lead.name : 'Unknown'}</Typography>
-                              </Box>
-                            </TableCell>
-                            <TableCell>
-                              {item.type === 'call' ? <CallIcon /> : item.type === 'email' ? <EmailIcon /> : <SmsIcon />}
-                            </TableCell>
-                            <TableCell>{item.score}</TableCell>
-                            <TableCell>{item.outcome}</TableCell>
-                            <TableCell>
-                              <Form action={`/${user.displayName}/call-log/${item.type}/${item.id}`}>
-                                <Button type="submit" variant="contained" color="primary">
-                                  View {item.type}
-                                </Button>
-                              </Form>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {paginatedData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Avatar alt={item.participants.customer.name} src={item.participants.customer.photoURL} sx={{ marginRight: '1em' }} />
+                              <Typography>{item.participants.customer.name}</Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            {item.type === 'call' ? <CallIcon /> : item.type === 'email' ? <EmailIcon /> : <SmsIcon />}
+                          </TableCell>
+                          <TableCell>{item.correspondence.content.score}</TableCell>
+                          <TableCell>{item.correspondence.content.outcome}</TableCell>
+                          <TableCell>
+                            <Form action={`/${user.displayName}/call-log/${item.type}/${item.id}`}>
+                              <Button type="submit" variant="contained" color="primary">
+                                View {item.type}
+                              </Button>
+                            </Form>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                   <TablePagination
                     rowsPerPageOptions={[2, 5, 10]}
                     component="div"
-                    count={tableData.length}
+                    count={contactHistory.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
