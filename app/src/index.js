@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { Login, Register, SignOut } from "./components/auth";
 import { Home, Profile, Settings, Error } from "./components/root";
-import Chat from "./components/root/Chat";
+import Chat from "./components/services/Chat";
 import Dashboard, { DashboardContent } from "./components/root/Dashboard";
 import CallLog, { CallLogLanding, AddLead, ContactHistory, ContactView, ContactSummary, LeadsList } from "./components/services/LeadContactLog"
 import { AuthProvider } from "./context/AuthContext";
@@ -37,6 +37,7 @@ const router = createBrowserRouter([
             { path: "/error", element: <Error /> },
             {
                 path: ":username", children: [
+                    { path: "upgrade", element: <div>Upgrade to Pro</div> },
                     {
                         path: "dashboard",
                         element: <Dashboard />,
@@ -64,7 +65,7 @@ const router = createBrowserRouter([
                                 loader: leadListLoader,
                                 action: contactLeadAction,
                                 children: [
-                                    { path: "add", element: <AddLead /> },
+                                    { path: "add", element: <AddLead />, addLeadAction },
                                     { path: ":contentType/:contactId", element: <ContactView />, loader: contactViewLoader },
                                 ]
                             },

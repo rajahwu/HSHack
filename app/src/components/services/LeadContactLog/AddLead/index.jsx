@@ -20,7 +20,7 @@ const AddLead = () => {
         <Typography component="h2" variant="h5">
           Request Leads
         </Typography>
-        <Form method="post" style={{ width: '100%' }}> {/* Ensure method is POST to trigger action */}
+        <Form method="post" style={{ width: '100%' }}>
           <TextField
             margin="normal"
             required

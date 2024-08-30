@@ -17,8 +17,11 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { Form, NavLink, useLoaderData, Outlet } from "react-router-dom";
+import { useAuth } from '../../../../context/AuthContext';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 
 const LeadsList = () => {
+  const { user } = useAuth()
   const leads = useLoaderData();
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(2);
@@ -40,9 +43,16 @@ const LeadsList = () => {
 
   return (
     <Box sx={{ maxWidth: 800 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Typography variant="h4" component="h2" gutterBottom>
         Leads
       </Typography>
+       {user && <Form action={`/${user.displayName}/leads/new`}>
+          <Button type="submit" variant="text" color="primary" endIcon={<PersonSearchIcon />}>
+            Find Leads
+          </Button>
+        </Form>}
+      </Box>
       <Outlet />
       <TableContainer component={Paper}>
         <Table>
