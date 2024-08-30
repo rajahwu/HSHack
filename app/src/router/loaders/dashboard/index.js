@@ -7,7 +7,6 @@ import Correspondence from '../../../models/Correspondence';
 export async function loader({ params }) {
   const user = auth.currentUser;
   const { username } = params;
-  console.log(user)
 
   if (!user) {
     return redirect('/login');
@@ -31,14 +30,7 @@ export async function loader({ params }) {
       })
     );
 
-    const scores = contactHistory.map(() => Math.floor(Math.random() * 101)); // Random scores between 0 and 100
-    const outcomes = contactHistory.map(() => (Math.random() > 0.5 ? 1 : 0)); // Random outcomes, 1 or 0
-
-
-    console.log(contactHistory);
-    // console.log(leads);
-
-    return { leads, contactHistory, scores, outcomes }; 
+    return { leads, contactHistory }; 
 
   } catch (error) {
     console.error('Error loading data:', error.message);

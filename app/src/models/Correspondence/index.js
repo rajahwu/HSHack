@@ -1,6 +1,7 @@
 import { TranscriberModel as genai } from "../../services/gemini";
 import { doc, getDoc, setDoc, addDoc, collection, getDocs } from "firebase/firestore"; // Import necessary Firestore functions
 import { db } from "../../services/firebase";
+import { SalesContact } from '../SalesContact';
 
 /**
  * Represents an AI-generated correspondence for a sales contact.
@@ -111,36 +112,7 @@ static async getAllCorrespondences() {
   }
 }
 
-
-  /**
-   * Fetches the correspondence by its salesContact ID.
-   * @param {string} salesContactId - The salesContact ID associated with the correspondence.
-   * @returns {Promise<Correspondence>} The fetched Correspondence instance.
-   * @throws {Error} Throws an error if fetching fails.
-   */
-  static async getCorrespondenceBySalesContact(salesContactId) {
-    try {
-      const docRef = doc(db, "correspondences", salesContactId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return new Correspondence({
-          id: data.id,
-          salesContactId,
-          content: data.content,
-          fallbackId: data.fallbackId,
-        });
-      } else {
-        throw new Error("Correspondence not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching correspondence: ", error.message);
-      throw new Error("Failed to get correspondence");
-    }
-  }
-
-  /**
+    /**
    * Checks for an existing fallback correspondence or creates one if not found.
    * @param {Object} params - The parameters for the fallback Correspondence.
    * @returns {Promise<Correspondence>} The fetched or created Correspondence instance.
@@ -149,7 +121,8 @@ static async getAllCorrespondences() {
     try {
       // Attempt to find an existing correspondence
       const fallbackId = `fallback-${salesContactId}`;
-      const existingCorrespondence = await this.getCorrespondence(fallbackId);
+      const salesContact = await SalesContact.fieldById(salesContactId)
+      const existingCorrespondence = await this.getCorrespondence(salesContact.correspondenceId);
       if (existingCorrespondence) {
         return existingCorrespondence;
       }
