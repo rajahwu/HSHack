@@ -6,14 +6,6 @@ import {
   Grid,
   Typography,
   Avatar,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TablePagination,
   Stack,
 } from '@mui/material';
 import React, { useState } from 'react';
@@ -44,42 +36,35 @@ const DashboardContent = () => {
 
   // Pagination state
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(2);
 
-  // Handle pagination
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
-
-  // Combine scores and outcomes into a single array for the table
+  // Combine scores and outcomes into a single array
   const tableData = placeholderScores.map((score, index) => ({
     ...score,
     outcome: placeholderOutcomes[index].outcome,
   }));
 
+  // Handle pagination
+  const paginatedData = tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
   return (
     <Box sx={{ padding: 2 }}>
       <Grid container spacing={2}>
-        {/* First Column: Profile Card */}
-        <Grid item xs={12} sm={6} display="flex" alignItems="center" justifyContent="center">
+        {/* Profile Card */}
+        <Grid item xs={12} sm={6} display="flex" justifyContent="center">
           <Card sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 2 }}>
             {user && (
-              <img
+              <Avatar
                 src={user.photoURL || 'https://picsum.photos/100'}
                 alt={user.displayName}
-                style={{ borderRadius: '50%', width: 100, height: 100, marginBottom: '1em' }}
+                sx={{ width: 100, height: 100, marginBottom: '1em' }}
               />
             )}
             <Typography variant="h5">{user ? user.displayName : '🕑'}</Typography>
           </Card>
         </Grid>
 
-        {/* Second Column: Leads */}
+        {/* Leads Card */}
         <Grid item xs={12} sm={6}>
           <Card sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -110,69 +95,60 @@ const DashboardContent = () => {
           </Card>
         </Grid>
 
-        {/* Third Row: Contact History in a Paginated Table */}
-      <Grid item xs={12}>
-  <Card sx={{ display: 'flex', alignItems: 'center', justifyContent: 'baseline' }}>
-    <CardContent sx={{ width: '100%' }}>
-      <Typography variant="h6">Contact History</Typography>
-      {contactHistory.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Type</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Score</TableCell>
-                <TableCell>Outcome</TableCell>
-                <TableCell /> {/* For the button */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tableData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => {
-                const lead = leads.find((lead) => lead.id === item.leadId);
-                return (
-                  <TableRow key={item.name}>
-                    <TableCell>
-                      {item.type === 'call' ? <CallIcon /> : item.type === 'email' ? <EmailIcon /> : <SmsIcon />}
-                    </TableCell>
-                    <TableCell>
-                      {lead && (
-                        <Avatar
-                          alt={lead.name}
-                          src={lead.photoURL || 'https://picsum.photos/50'}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>{item.score}</TableCell>
-                    <TableCell>{item.outcome}</TableCell>
-                    <TableCell align="center">
-                      <Form action={`/${user.displayName}/call-log/history`}>
-                        <Button type="submit" variant="contained" color="primary">
-                          View {item.type}
-                        </Button>
-                      </Form>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={tableData.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </TableContainer>
-      ) : (
-        <Typography>No contact history available.</Typography>
-      )}
-    </CardContent>
-  </Card>
-</Grid> 
+        {/* Contact History */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" sx={{ marginBottom: 2 }}>Contact History</Typography>
+              {contactHistory.length > 0 ? (
+                <Grid container spacing={2}>
+                  {paginatedData.map((item) => {
+                    // const lead = leads.find((lead) => lead.id === item.leadId);
+                    const randIdx = (Math.floor(Math.random() * (leads.length - 1)));
+                    const lead = leads[randIdx];
+                    return (
+                      <Grid item xs={12} sm={6} key={item.name}>
+                        <Card sx={{ padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <Grid container alignItems="center" spacing={1}>
+                            <Grid item>
+                              <Typography variant="body1">{lead ? lead.name : 'Unknown'}</Typography>
+                              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                              <Avatar alt={lead.name} src={lead.photoURL} />
+
+                              {item.type === 'call' ? <CallIcon /> : item.type === 'email' ? <EmailIcon /> : <SmsIcon />}
+                              </Box>
+                            </Grid>
+                            <Grid item xs>
+                            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "baseline", justifyContent: "baseline", marginLeft: "0.5em" }}>
+
+                              <Typography variant="body2">Score: {item.score}</Typography>
+                              <Typography variant="body2">Outcome: {item.outcome}</Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item>
+                              <Form action={`/${user.displayName}/call-log/${item.type}/${item.id}`}>
+                                <Button type="submit" variant="contained" color="primary">
+                                  View {item.type}
+                                </Button>
+                              </Form>
+                            </Grid>
+                          </Grid>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              ) : (
+                <Typography>No contact history available.</Typography>
+              )}
+              <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                <Button onClick={() => setPage(page - 1)} disabled={page === 0}>Previous</Button>
+                <Typography sx={{ marginX: 2 }}>Page {page + 1}</Typography>
+                <Button onClick={() => setPage(page + 1)} disabled={(page + 1) * rowsPerPage >= tableData.length}>Next</Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
     </Box>
   );

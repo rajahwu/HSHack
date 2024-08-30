@@ -13,6 +13,7 @@ import {
   TablePagination,
   Paper,
   Typography,
+  Stack,
 } from "@mui/material";
 import React, { useState } from "react";
 import { Form, NavLink, useLoaderData, Outlet } from "react-router-dom";
@@ -42,7 +43,7 @@ const LeadsList = () => {
       <Typography variant="h4" component="h2" gutterBottom>
         Leads
       </Typography>
-        <Outlet />
+      <Outlet />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -50,49 +51,60 @@ const LeadsList = () => {
               <TableCell>Name</TableCell>
               <TableCell>Phone</TableCell>
               <TableCell>Cell</TableCell>
-              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedLeads.map((lead) => (
-              <TableRow key={lead.id}>
-                <TableCell>{lead.name}</TableCell>
-                <TableCell>
-                  <NavLink>{lead.phoneNumber}</NavLink>
-                </TableCell>
-                <TableCell>
-                  <NavLink>{lead.textNumber}</NavLink>
-                </TableCell>
-                <TableCell>
-                  <Form id="call" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="phoneNumber" value={lead.phoneNumber} />
-                    <Button variant="contained" type="submit">
-                      <CallIcon />
-                    </Button>
-                  </Form>
-                  <Form id="email" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="email" value={lead.email} />
-                    <Button variant="contained" type="submit">
-                      <EmailIcon />
-                    </Button>
-                  </Form>
-                  <Form id="text" method="post">
-                    <input type="hidden" name="userId" value={lead.assignedTo} />
-                    <input type="hidden" name="leadId" value={lead.id} />
-                    <input type="hidden" name="name" value={lead.name} />
-                    <input type="hidden" name="textNumber" value={lead.textNumber} />
-                    <Button variant="contained" type="submit">
-                      <SmsIcon />
-                    </Button>
-                  </Form>
-                </TableCell>
-              </TableRow>
+              <React.Fragment key={lead.id}>
+                <TableRow>
+                  <TableCell>{lead.name}</TableCell>
+                  <TableCell>
+                    <NavLink>{lead.phoneNumber}</NavLink>
+                  </TableCell>
+                  <TableCell>
+                    <NavLink>{lead.textNumber}</NavLink>
+                  </TableCell>
+                </TableRow>
+                {/* Second row for the buttons */}
+                <TableRow>
+                  <TableCell colSpan={3}>
+                    <Stack direction="row" spacing={1} justifyContent="baseline">
+                      {/* Call button */}
+                      <Form id="call" method="post">
+                        <input type="hidden" name="userId" value={lead.assignedTo} />
+                        <input type="hidden" name="leadId" value={lead.id} />
+                        <input type="hidden" name="name" value={lead.name} />
+                        <input type="hidden" name="phoneNumber" value={lead.phoneNumber} />
+                        <Button variant="contained" type="submit">
+                          <CallIcon />
+                        </Button>
+                      </Form>
+
+                      {/* Email button */}
+                      <Form id="email" method="post">
+                        <input type="hidden" name="userId" value={lead.assignedTo} />
+                        <input type="hidden" name="leadId" value={lead.id} />
+                        <input type="hidden" name="name" value={lead.name} />
+                        <input type="hidden" name="email" value={lead.email} />
+                        <Button variant="contained" type="submit">
+                          <EmailIcon />
+                        </Button>
+                      </Form>
+
+                      {/* Text button */}
+                      <Form id="text" method="post">
+                        <input type="hidden" name="userId" value={lead.assignedTo} />
+                        <input type="hidden" name="leadId" value={lead.id} />
+                        <input type="hidden" name="name" value={lead.name} />
+                        <input type="hidden" name="textNumber" value={lead.textNumber} />
+                        <Button variant="contained" type="submit">
+                          <SmsIcon />
+                        </Button>
+                      </Form>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>
