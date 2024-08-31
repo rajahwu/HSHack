@@ -81,7 +81,7 @@ const { user } = useAuth();
         </Card>
       </Grid>
       <Grid item xs={12} sm={4}>
-        <Card>
+        {/* <Card>
           <CardContent>
             <Typography variant="h5" gutterBottom>
               Detailed Interaction History
@@ -94,7 +94,7 @@ const { user } = useAuth();
               Review every interaction your bot has with leads, gaining valuable insights and tracking progress. 
             </Typography>
           </CardContent>
-        </Card>
+        </Card> */}
       </Grid>
     </Grid>
   </Box>

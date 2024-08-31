@@ -2,7 +2,7 @@ import React from 'react';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import { Box, Button, Card, CardContent, CardMedia, IconButton, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, CardMedia, CardActions, IconButton, Typography } from '@mui/material';
 import { useLoaderData, Link } from 'react-router-dom';
 
 const ContactView = () => {
@@ -68,22 +68,28 @@ const ContactView = () => {
             </IconButton>
           </Box>
         )}
+
+        {/* Add spacing below the media controls when the call is complete */}
+        {contactStatus === 'complete' && contactType === 'call' && (
+          <Box sx={{ mb: 2 }} /> 
+        )} 
       </Box>
 
-      {/* Conditionally Render the 'Review Call Summary' Button on the Right */}
+     {/* Conditionally Render the 'Review Call Summary' Button at the bottom */}
       {contactStatus === 'complete' && (
-        <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+        <CardActions sx={{ justifyContent: 'center', width: '100%' }}> {/* Added CardActions and styling */}
           <Button 
             component={Link} 
             to={`/${salesContact.participants.caller.username}/call-log/${contactType}/${salesContact.id}/review`} 
             variant="contained" 
             color="primary"
+            fullWidth // Make the button take up the full width
           >
-            Review Call Summary
+            View {salesContact.type} Summary
           </Button>
-        </Box>
+        </CardActions>
       )}
-    </Card>
+    </Card> 
   );
 };
 
